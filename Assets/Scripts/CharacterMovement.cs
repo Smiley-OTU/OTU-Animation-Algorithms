@@ -15,8 +15,14 @@ public class CharacterMovement : MonoBehaviour
 
     Rigidbody body;
     Animator animator;
+    enum Movement
+    {
+        IDLE,
+        WALK,
+        RUN
+    };
 
-    float speed;
+    Movement state = Movement.IDLE;
 
     private void OnEnable()
     {
@@ -47,52 +53,63 @@ public class CharacterMovement : MonoBehaviour
             StartCoroutine(Jump());
         }
 
-        if (sprintAction.IsPressed())
+        Vector2 moveInput = moveAction.ReadValue<Vector2>();
+        Vector3 moveDirection = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+
+        bool movement = moveDirection != Vector3.zero;
+        bool sprint = sprintAction.IsPressed();
+
+        transform.forward = movement? moveDirection : transform.forward;
+        body.velocity = moveDirection * (sprint ? sprintSpeed : moveSpeed);
+
+        if (movement)
         {
-            speed = sprintSpeed;
+            state = sprint ? Movement.RUN : Movement.WALK;
         }
         else
         {
-            speed = moveSpeed;
+            state = Movement.IDLE;
         }
 
-        Vector2 moveDir = moveAction.ReadValue<Vector2>();
-
-        Vector3 moveDirection = new Vector3(moveDir.x, 0, moveDir.y).normalized;
-
-        float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
-
-        transform.rotation = Quaternion.Euler(0f, targetAngle, 0f);
-
-        body.velocity = moveDirection * speed;
+        switch (state)
+        {
+            case Movement.IDLE:
+                animator.SetBool("IsWalking", false);
+                animator.SetBool("IsRunning", false);
+                break;
+            case Movement.WALK:
+                animator.SetBool("IsWalking", true);
+                animator.SetBool("IsRunning", false);
+                break;
+            case Movement.RUN:
+                animator.SetBool("IsWalking", false);
+                animator.SetBool("IsRunning", true);
+                break;
+        }
     }
 
     IEnumerator Jump()
     {
-        float elaspedTime = 0;
+        animator.SetBool("IsJumping", true);
+        float elaspedTime = 0.0f;
 
         while(elaspedTime < jumpDuration / 2)
         {
             body.velocity = new Vector3(body.velocity.x, Mathf.Lerp(jumpPower, 0, elaspedTime / (jumpDuration / 2)), body.velocity.z);
-
             elaspedTime += Time.deltaTime;
-
             yield return null;
         }
-
-        elaspedTime = 0;
+        elaspedTime = 0.0f;
 
         while (elaspedTime < jumpDuration / 2)
         {
             body.velocity = new Vector3(body.velocity.x, Mathf.Lerp(0, -jumpPower, elaspedTime / (jumpDuration / 2)), body.velocity.z);
-
             elaspedTime += Time.deltaTime;
-
             yield return null;
         }
-
         body.velocity = Vector3.zero;
 
+        animator.SetBool("IsJumping", false);
         yield return null;
     }
 }
