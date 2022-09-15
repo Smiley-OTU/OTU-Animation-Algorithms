@@ -15,14 +15,6 @@ public class CharacterMovement : MonoBehaviour
 
     Rigidbody body;
     Animator animator;
-    enum Movement
-    {
-        IDLE,
-        WALK,
-        RUN
-    };
-
-    Movement state = Movement.IDLE;
 
     private void OnEnable()
     {
@@ -62,29 +54,22 @@ public class CharacterMovement : MonoBehaviour
         transform.forward = movement? moveDirection : transform.forward;
         body.velocity = moveDirection * (sprint ? sprintSpeed : moveSpeed);
 
-        if (movement)
+        if (sprint)
         {
-            state = sprint ? Movement.RUN : Movement.WALK;
+            animator.SetBool("IsRunning", true);
         }
         else
         {
-            state = Movement.IDLE;
+            animator.SetBool("IsRunning", false);
         }
 
-        switch (state)
+        if (movement)
         {
-            case Movement.IDLE:
-                animator.SetBool("IsWalking", false);
-                animator.SetBool("IsRunning", false);
-                break;
-            case Movement.WALK:
-                animator.SetBool("IsWalking", true);
-                animator.SetBool("IsRunning", false);
-                break;
-            case Movement.RUN:
-                animator.SetBool("IsWalking", false);
-                animator.SetBool("IsRunning", true);
-                break;
+            animator.SetBool("IsWalking", true);
+        }
+        else
+        {
+            animator.SetBool("IsWalking", false);
         }
     }
 
