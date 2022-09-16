@@ -700,6 +700,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 1414715235}
+  fov: 60
+  length: 10
 --- !u!95 &1720229650
 Animator:
   serializedVersion: 4
