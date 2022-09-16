@@ -13,9 +13,6 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] float jumpPower = 5;
     [SerializeField] float jumpDuration = 0.5f;
 
-    [SerializeField] Material seen;
-    [SerializeField] Material unseen;
-
     Rigidbody body;
     Animator animator;
 

@@ -29,8 +29,11 @@ public class EnemyMovement : MonoBehaviour
         ql.eulerAngles = left;
         qr.eulerAngles = right;
 
+        // Draw lines green if unseen and red if seen
         Debug.DrawLine(transform.position, transform.position + ql * Vector3.forward * length);
         Debug.DrawLine(transform.position, transform.position + qr * Vector3.forward * length);
         Debug.DrawLine(transform.position, target.transform.position);
+
+
     }
 }
