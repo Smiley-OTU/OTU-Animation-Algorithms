@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -5,11 +6,113 @@ using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
+    enum InterpolationMode
+    {
+        NONE,
+        LINEAR,
+        SMOOTH,
+        CUSTOM
+    }
+
+    enum InterpolationType
+    {
+        SINE,
+        QUADRATIC,
+        CUBIC,
+        QUARTIC,
+        QUINTIC,
+        EXPONENTIAL,
+        CIRCLE,
+        BACK,
+        ELASTIC
+    }
+
+    static float EaseSine(float t)
+    {
+        return -(Mathf.Cos(Mathf.PI * t) - 1.0f) / 2.0f;
+    }
+
+    static float EaseQuadratic(float t)
+    {
+        return t < 0.5f ? 2.0f * t * t : 1 - Mathf.Pow(-2.0f * t + 2.0f, 2.0f) / 2.0f;
+    }
+
+    static float EaseCubic(float t)
+    {
+        return t < 0.5f ? 4.0f * t * t * t : 1.0f - Mathf.Pow(-2.0f * t + 2.0f, 3.0f) / 2.0f;
+    }
+
+    static float EaseQuartic(float t)
+    {
+        return t < 0.5f ? 8.0f * t * t * t * t : 1.0f - Mathf.Pow(-2.0f * t + 2.0f, 4.0f) / 2.0f;
+    }
+
+    static float EaseQuintic(float t)
+    {
+        return t < 0.5f ? 16.0f * t * t * t * t * t : 1.0f - Mathf.Pow(-2.0f * t + 2.0f, 5.0f) / 2.0f;
+    }
+
+    static float EaseExponential(float t)
+    {
+        return t == 0.0f
+          ? 0.0f
+          : t == 1.0f
+          ? 1.0f
+          : t < 0.5f ? Mathf.Pow(2.0f, 20.0f * t - 10.0f) / 2.0f
+          : (2.0f - Mathf.Pow(2.0f, -20.0f * t + 10.0f)) / 2.0f;
+    }
+
+    static float EaseCircle(float t)
+    {
+        return t < 0.5f
+          ? (1.0f - Mathf.Sqrt(1.0f - Mathf.Pow(2.0f * t, 2.0f))) / 2.0f
+          : (Mathf.Sqrt(1.0f - Mathf.Pow(-2.0f * t + 2.0f, 2.0f)) + 1.0f) / 2.0f;
+    }
+
+    static float EaseBack(float t)
+    {
+        const float c1 = 1.70158f;
+        const float c2 = c1 * 1.525f;
+
+        return t < 0.5
+          ? (Mathf.Pow(2.0f * t, 2.0f) * ((c2 + 1.0f) * 2.0f * t - c2)) / 2.0f
+          : (Mathf.Pow(2.0f * t - 2.0f, 2.0f) * ((c2 + 1.0f) * (t * 2.0f - 2.0f) + c2) + 2.0f) / 2.0f;
+    }
+
+    static float EaseElastic(float t)
+    {
+        const float c5 = (2.0f * Mathf.PI) / 4.5f;
+
+        return t == 0.0f
+          ? 0.0f
+          : t == 1.0f
+          ? 1.0f
+          : t < 0.5f
+          ? -(Mathf.Pow(2.0f, 20.0f * t - 10.0f) * Mathf.Sin((20.0f * t - 11.125f) * c5)) / 2.0f
+          : (Mathf.Pow(2.0f, -20.0f * t + 10.0f) * Mathf.Sin((20.0f * t - 11.125f) * c5)) / 2.0f + 1.0f;
+    }
+
+    delegate float CustomInterpolation(float t);
+    CustomInterpolation[] customInterpolations = new CustomInterpolation[9]
+    {
+        EaseSine,
+        EaseQuadratic,
+        EaseCubic,
+        EaseQuartic,
+        EaseQuintic,
+        EaseExponential,
+        EaseCircle,
+        EaseBack,
+        EaseElastic
+    };
+
     [SerializeField] GameObject target;
     [SerializeField] const float fov = 60.0f;
     [SerializeField] const float length = 10.0f;
     [SerializeField] const float rotationAmount = 90.0f;
     [SerializeField] const float rotationDuration = 3.0f;
+    [SerializeField] InterpolationMode mode = InterpolationMode.NONE;
+    [SerializeField] InterpolationType type = InterpolationType.SINE;
 
     private float rotSrc, rotDst;
     private float elapsedTime = 0.0f;
@@ -23,19 +126,38 @@ public class EnemyMovement : MonoBehaviour
 
     void Update()
     {
-        float y = right ? Mathf.Lerp(rotSrc, rotDst, elapsedTime / rotationDuration) :
-            Mathf.Lerp(rotDst, rotSrc, elapsedTime / rotationDuration);
+        float y = 0.0f;
+        float t = right ? elapsedTime / rotationDuration : 1.0f - elapsedTime / rotationDuration;
+        switch (mode)
+        {
+            case InterpolationMode.NONE:
+                y = right ? rotSrc : rotDst;
+                break;
+
+            case InterpolationMode.LINEAR:
+                y = Mathf.Lerp(rotSrc, rotDst, t);
+                break;
+
+            case InterpolationMode.SMOOTH:
+                y = Mathf.SmoothStep(rotSrc, rotDst, t);
+                break;
+
+            case InterpolationMode.CUSTOM:
+                float tCustom = customInterpolations[(int)type](t);
+                y = Mathf.LerpUnclamped(rotSrc, rotDst, tCustom);
+                break;
+        }
+
+        Vector3 euler = transform.eulerAngles;
+        euler.y = y;
+        transform.eulerAngles = euler;
+        Utility.InRangeDebug(transform, target.transform, length, fov);
+
         elapsedTime += Time.smoothDeltaTime;
         if (elapsedTime > rotationDuration)
         {
             elapsedTime = 0.0f;
             right = !right;
         }
-
-        Vector3 euler = transform.eulerAngles;
-        euler.y = y;
-        //euler.y = rotSrc + Mathf.Cos(Time.realtimeSinceStartup) * Mathf.Rad2Deg;
-        transform.eulerAngles = euler;
-        Utility.InRangeDebug(transform, target.transform, length, fov);
     }
 }

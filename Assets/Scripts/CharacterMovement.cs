@@ -51,7 +51,7 @@ public class CharacterMovement : MonoBehaviour
         bool movement = moveDirection != Vector3.zero;
         bool sprint = sprintAction.IsPressed();
 
-        transform.forward = movement? moveDirection : transform.forward;
+        transform.forward = movement ? moveDirection : transform.forward;
         body.velocity = moveDirection * (sprint ? sprintSpeed : moveSpeed);
 
         if (sprint)
