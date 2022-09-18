@@ -6,15 +6,15 @@ using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
-    enum InterpolationMode
+    enum Interpolation
     {
-        NONE,
         LINEAR,
         SMOOTH,
-        CUSTOM
+        EASE,
+        CURVE
     }
 
-    enum InterpolationType
+    enum Easing
     {
         SINE,
         QUADRATIC,
@@ -92,8 +92,8 @@ public class EnemyMovement : MonoBehaviour
           : (Mathf.Pow(2.0f, -20.0f * t + 10.0f) * Mathf.Sin((20.0f * t - 11.125f) * c5)) / 2.0f + 1.0f;
     }
 
-    delegate float CustomInterpolation(float t);
-    CustomInterpolation[] customInterpolations = new CustomInterpolation[9]
+    delegate float EasingMethod(float t);
+    EasingMethod[] easings = new EasingMethod[9]
     {
         EaseSine,
         EaseQuadratic,
@@ -111,8 +111,9 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField] const float length = 10.0f;
     [SerializeField] const float rotationAmount = 90.0f;
     [SerializeField] const float rotationDuration = 3.0f;
-    [SerializeField] InterpolationMode mode = InterpolationMode.NONE;
-    [SerializeField] InterpolationType type = InterpolationType.SINE;
+    [SerializeField] Interpolation interpolation = Interpolation.LINEAR;
+    [SerializeField] Easing easing = Easing.SINE;
+    [SerializeField] AnimationCurve curve;
 
     private float rotSrc, rotDst;
     private float elapsedTime = 0.0f;
@@ -128,23 +129,32 @@ public class EnemyMovement : MonoBehaviour
     {
         float y = 0.0f;
         float t = right ? elapsedTime / rotationDuration : 1.0f - elapsedTime / rotationDuration;
-        switch (mode)
+        switch (interpolation)
         {
-            case InterpolationMode.NONE:
-                y = right ? rotSrc : rotDst;
+            case Interpolation.LINEAR:
+                {
+                    y = Mathf.Lerp(rotSrc, rotDst, t);
+                }
                 break;
 
-            case InterpolationMode.LINEAR:
-                y = Mathf.Lerp(rotSrc, rotDst, t);
+            case Interpolation.SMOOTH:
+                {
+                    y = Mathf.SmoothStep(rotSrc, rotDst, t);
+                }
                 break;
 
-            case InterpolationMode.SMOOTH:
-                y = Mathf.SmoothStep(rotSrc, rotDst, t);
+            case Interpolation.EASE:
+                {
+                    float t1 = easings[(int)easing](t);
+                    y = Mathf.LerpUnclamped(rotSrc, rotDst, t1);
+                }
                 break;
 
-            case InterpolationMode.CUSTOM:
-                float tCustom = customInterpolations[(int)type](t);
-                y = Mathf.LerpUnclamped(rotSrc, rotDst, tCustom);
+            case Interpolation.CURVE:
+                {
+                    float t1 = curve.Evaluate(t);
+                    y = Mathf.LerpUnclamped(rotSrc, rotDst, t1);
+                }
                 break;
         }
 
