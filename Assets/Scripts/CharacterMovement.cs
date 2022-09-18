@@ -14,7 +14,7 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] float jumpDuration = 0.5f;
 
     Rigidbody body;
-    Animator animator;
+    AnimationManager animationManager;
 
     private void OnEnable()
     {
@@ -30,14 +30,12 @@ public class CharacterMovement : MonoBehaviour
         jumpAction.Disable();
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         body = GetComponent<Rigidbody>();
-        animator = GetComponent<Animator>();
+        animationManager = GetComponent<AnimationManager>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
@@ -48,36 +46,27 @@ public class CharacterMovement : MonoBehaviour
 
         bool movement = Mathf.Abs(moveInput.y) > Mathf.Epsilon;
         bool sprint = sprintAction.IsPressed();
-
         body.velocity = transform.rotation * Vector3.forward * moveInput.y * (sprint ? sprintSpeed : moveSpeed);
-
-        if (sprint)
-        {
-            animator.SetBool("IsRunning", true);
-        }
-        else
-        {
-            animator.SetBool("IsRunning", false);
-        }
 
         if (movement)
         {
-            animator.SetBool("IsWalking", true);
+            if (sprint)
+                animationManager.Change(AnimationManager.Animations.RUN);
+            else
+                animationManager.Change(AnimationManager.Animations.WALK);
         }
         else
-        {
-            animator.SetBool("IsWalking", false);
-        }
+            animationManager.Change(AnimationManager.Animations.IDLE);
 
         if (jumpAction.triggered)
         {
+            animationManager.Change(AnimationManager.Animations.JUMP);
             StartCoroutine(Jump());
         }
     }
 
     IEnumerator Jump()
     {
-        animator.SetBool("IsJumping", true);
         float elaspedTime = 0.0f;
 
         while(elaspedTime < jumpDuration / 2)
@@ -96,7 +85,6 @@ public class CharacterMovement : MonoBehaviour
         }
         body.velocity = Vector3.zero;
 
-        animator.SetBool("IsJumping", false);
         yield return null;
     }
 }
