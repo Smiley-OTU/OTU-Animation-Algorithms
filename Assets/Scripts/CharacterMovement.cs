@@ -40,19 +40,16 @@ public class CharacterMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (jumpAction.triggered)
-        {
-            StartCoroutine(Jump());
-        }
-
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
-        Vector3 moveDirection = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+        float yaw = moveInput.x;
+        Vector3 rotation = transform.eulerAngles;
+        rotation.y += yaw;
+        transform.eulerAngles = rotation;
 
-        bool movement = moveDirection != Vector3.zero;
+        bool movement = Mathf.Abs(moveInput.y) > Mathf.Epsilon;
         bool sprint = sprintAction.IsPressed();
 
-        transform.forward = movement ? moveDirection : transform.forward;
-        body.velocity = moveDirection * (sprint ? sprintSpeed : moveSpeed);
+        body.velocity = transform.rotation * Vector3.forward * moveInput.y * (sprint ? sprintSpeed : moveSpeed);
 
         if (sprint)
         {
@@ -70,6 +67,11 @@ public class CharacterMovement : MonoBehaviour
         else
         {
             animator.SetBool("IsWalking", false);
+        }
+
+        if (jumpAction.triggered)
+        {
+            StartCoroutine(Jump());
         }
     }
 
