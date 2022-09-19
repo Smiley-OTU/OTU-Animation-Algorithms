@@ -16,7 +16,15 @@ public class CharacterMovement : MonoBehaviour
     Rigidbody body;
     AnimationManager animationManager;
 
-    private void OnEnable()
+	public enum Animations
+	{
+		WALK,
+		RUN,
+		JUMP,
+		IDLE
+	}
+
+	private void OnEnable()
     {
         moveAction.Enable();
         sprintAction.Enable();
@@ -51,16 +59,16 @@ public class CharacterMovement : MonoBehaviour
         if (movement)
         {
             if (sprint)
-                animationManager.Change(AnimationManager.Animations.RUN);
+                animationManager.Change(Animations.RUN);
             else
-                animationManager.Change(AnimationManager.Animations.WALK);
+                animationManager.Change(Animations.WALK);
         }
         else
-            animationManager.Change(AnimationManager.Animations.IDLE);
+            animationManager.Change(Animations.IDLE);
 
         if (jumpAction.triggered)
         {
-            animationManager.Change(AnimationManager.Animations.JUMP);
+            animationManager.Change(Animations.JUMP);
             StartCoroutine(Jump());
         }
     }
