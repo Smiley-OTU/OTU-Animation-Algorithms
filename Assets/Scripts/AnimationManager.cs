@@ -11,37 +11,29 @@ public class AnimationManager : MonoBehaviour
     {
         animator = GetComponent<Animator>();
 
-        conditions[(int)Animations.WALK] = Animator.StringToHash("IsWalking");
-        conditions[(int)Animations.RUN] = Animator.StringToHash("IsRunning");
-        conditions[(int)Animations.JUMP] = Animator.StringToHash("IsJumping");
+        conditions[(int)CharacterMovement.Animations.WALK] = Animator.StringToHash("IsWalking");
+        conditions[(int)CharacterMovement.Animations.RUN] = Animator.StringToHash("IsRunning");
+        conditions[(int)CharacterMovement.Animations.JUMP] = Animator.StringToHash("IsJumping");
     }
 
-    public enum Animations
-    {
-        WALK,
-        RUN,
-        JUMP,
-        IDLE
-    }
-
-    public void Change(Animations animation)
+    public void Change(CharacterMovement.Animations animation)
     {
         switch(animation)
         {
-            case Animations.IDLE:
-                animator.SetBool(conditions[(int)Animations.WALK], false);
-                animator.SetBool(conditions[(int)Animations.RUN], false);
+            case CharacterMovement.Animations.IDLE:
+                animator.SetBool(conditions[(int)CharacterMovement.Animations.WALK], false);
+                animator.SetBool(conditions[(int)CharacterMovement.Animations.RUN], false);
                 break;
-            case Animations.WALK:
-                animator.SetBool(conditions[(int)Animations.WALK], true);
-                animator.SetBool(conditions[(int)Animations.RUN], false);
+            case CharacterMovement.Animations.WALK:
+                animator.SetBool(conditions[(int)CharacterMovement.Animations.WALK], true);
+                animator.SetBool(conditions[(int)CharacterMovement.Animations.RUN], false);
                 break;
-            case Animations.RUN:
-                animator.SetBool(conditions[(int)Animations.WALK], true);
-                animator.SetBool(conditions[(int)Animations.RUN], true);
+            case CharacterMovement.Animations.RUN:
+                animator.SetBool(conditions[(int)CharacterMovement.Animations.WALK], true);
+                animator.SetBool(conditions[(int)CharacterMovement.Animations.RUN], true);
                 break;
-            case Animations.JUMP:
-                animator.SetTrigger(conditions[(int)Animations.JUMP]);
+            case CharacterMovement.Animations.JUMP:
+                animator.SetTrigger(conditions[(int)CharacterMovement.Animations.JUMP]);
                 break;
         }
     }
