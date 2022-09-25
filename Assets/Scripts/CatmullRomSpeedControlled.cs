@@ -5,20 +5,20 @@ using UnityEngine;
 public class CatmullRomSpeedControlled : MonoBehaviour
 {
 	public Transform[] points;
-	public float speed = 1f;
+	public float speed = 1.0f;
 	[Range(1, 32)]
 	public int sampleRate = 16;
 
 	[System.Serializable]
 	class SamplePoint
 	{
-		public float samplePosition;
+		public float t;
 		public float accumulatedDistance;
 
-		public SamplePoint(float samplePosition, float distanceCovered)
+		public SamplePoint(float t, float distance)
 		{
-			this.samplePosition = samplePosition;
-			this.accumulatedDistance = distanceCovered;
+			this.t = t;
+			this.accumulatedDistance = distance;
 		}
 	}
 	
@@ -26,7 +26,6 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 	List<List<SamplePoint>> table = new List<List<SamplePoint>>();
 
 	float distance = 0.0f;
-	float accumDistance = 0.0f;
 	int currentIndex = 0;
 	int currentSample = 0;
 
@@ -43,16 +42,18 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 		{
             Vector3 p0, p1, p2, p3;
             Utility.PointsFromIndex(i, points, out p0, out p1, out p2, out p3);
-			float previousDistance = Utility.EvaluateCatmull(p0, p1, p2, p3, 0.0f).magnitude;
             List<SamplePoint> segment = new List<SamplePoint>();
-			for (int sample = 1; sample <= sampleRate; ++sample)
+
+			float arcLength = 0.0f;
+			float step = 1.0f / sampleRate;
+			for (float t = step; t <= 1.0f; t+=step)
 			{
-				float t = (float)sample / (float)sampleRate;
-				float distance = Utility.EvaluateCatmull(p0, p1, p2, p3, t).magnitude;
-                accumDistance += Mathf.Abs(distance - previousDistance);
-                segment.Add(new SamplePoint(t, accumDistance));
-				previousDistance = distance;
-			}
+				Vector3 a = Utility.EvaluateCatmull(t - step, i, points);
+				Vector3 b = Utility.EvaluateCatmull(t, i, points);
+				Vector3 line = b - a;
+				arcLength += line.magnitude;
+				segment.Add(new SamplePoint(t, arcLength));
+            }
 			table.Add(segment);
 		}
 	}
@@ -60,35 +61,44 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 	private void Update()
 	{
 		distance += speed * Time.deltaTime;
-		float sampleDistance = table[currentIndex][currentSample].accumulatedDistance;
 
         // Increment indices until travelled distance matches desired distance
-        while (distance > table[currentIndex][currentSample].accumulatedDistance)
+        while (distance > table[currentIndex][(currentSample + 1) % sampleRate].accumulatedDistance)
 		{
-			if (++currentSample >= sampleRate)
+            if (++currentSample >= sampleRate)
 			{
 				currentSample = 0;
+                distance = 0.0f;
+
 				++currentIndex;
 				currentIndex %= points.Length;
             }
         }
 
-		transform.position = Utility.EvaluateCatmull(GetAdjustedT(), currentIndex, points);
+        transform.position = Utility.EvaluateCatmull(GetAdjustedT(), currentIndex, points);
     }
 
 	float GetAdjustedT()
 	{
 		SamplePoint current = table[currentIndex][currentSample];
-		SamplePoint next = table[currentIndex][currentSample + 1];
+		SamplePoint next = table[currentIndex][(currentSample + 1) % sampleRate];
 
-		return Mathf.Lerp(current.samplePosition, next.samplePosition,
-			(distance - current.accumulatedDistance) / (next.accumulatedDistance - current.accumulatedDistance)
+		return Mathf.Lerp(current.t, next.t,
+			(distance - current.accumulatedDistance) /
+			(next.accumulatedDistance - current.accumulatedDistance)
 		);
 	}
 
-	private void OnDrawGizmos()
+    private void OnDrawGizmos()
 	{
 		Utility.DrawCatmull(points, Gizmos.DrawLine);
-        //Utility.DrawCatmullPoint(0.5f, 0, points);
+        for (int i = 0; i < points.Length; ++i)
+		{
+            for (int sample = 1; sample <= sampleRate; ++sample)
+			{
+                float t = sample / (float)sampleRate;
+                Utility.DrawCatmullPoint(t, i, points);
+            }
+        }
     }
 }
