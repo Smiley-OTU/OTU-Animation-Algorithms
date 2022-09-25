@@ -17,10 +17,10 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 		public float t;
 		public float accumulatedDistance;
 
-		public SamplePoint(float t, float distance)
+		public SamplePoint(float t, float accumulatedDistance)
 		{
 			this.t = t;
-			this.accumulatedDistance = distance;
+			this.accumulatedDistance = accumulatedDistance;
 		}
 	}
 	
@@ -28,8 +28,8 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 	List<List<SamplePoint>> table = new List<List<SamplePoint>>();
 
 	float distance = 0.0f;
-	int currentIndex = 0;
-	int currentSample = 0;
+	int intervalIndex = 0;
+	int sampleIndex = 0;
 
 	private void Start()
 	{
@@ -69,25 +69,25 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 		distance += speed * Time.deltaTime;
 
         // Increment indices until travelled distance matches desired distance
-        while (distance > table[currentIndex][(currentSample + 1) % samples].accumulatedDistance)
+        while (distance > table[intervalIndex][(sampleIndex + 1) % samples].accumulatedDistance)
 		{
-            if (++currentSample >= samples)
+            if (++sampleIndex >= samples)
 			{
-				currentSample = 0;
+				sampleIndex = 0;
                 distance = 0.0f;
 
-				++currentIndex;
-				currentIndex %= points.Length;
+				++intervalIndex;
+				intervalIndex %= points.Length;
             }
         }
 
-        transform.position = Utility.EvaluateCatmull(GetAdjustedT(), currentIndex, points);
+        transform.position = Utility.EvaluateCatmull(GetAdjustedT(), intervalIndex, points);
     }
 
 	float GetAdjustedT()
 	{
-		SamplePoint current = table[currentIndex][currentSample];
-		SamplePoint next = table[currentIndex][(currentSample + 1) % samples];
+		SamplePoint current = table[intervalIndex][sampleIndex];
+		SamplePoint next = table[intervalIndex][(sampleIndex + 1) % samples];
 
 		return Mathf.Lerp(current.t, next.t,
 			(distance - current.accumulatedDistance) /
