@@ -2218,7 +2218,7 @@ MonoBehaviour:
   - {fileID: 330112454}
   - {fileID: 933248164}
   - {fileID: 308457156}
-  speed: 1
+  speed: 2
   sampleRate: 16
 --- !u!114 &1984289465
 MonoBehaviour:
