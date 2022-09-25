@@ -43,19 +43,13 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 		{
             Vector3 p0, p1, p2, p3;
             Utility.PointsFromIndex(i, points, out p0, out p1, out p2, out p3);
+			float previousDistance = Utility.EvaluateCatmull(p0, p1, p2, p3, 0.0f).magnitude;
             List<SamplePoint> segment = new List<SamplePoint>();
-			//Vector3 p0 = points[(i - 1 + points.Length) % points.Length].position;
-			//Vector3 p1 = points[i].position;
-			//Vector3 p2 = points[(i + 1) % points.Length].position;
-			//Vector3 p3 = points[(i + 2) % points.Length].position;
-
-			// Calculate samples
-			float previousDistance = 0.0f;
 			for (int sample = 1; sample <= sampleRate; ++sample)
 			{
-				float t = sample / sampleRate;
+				float t = (float)sample / (float)sampleRate;
 				float distance = Utility.EvaluateCatmull(p0, p1, p2, p3, t).magnitude;
-                accumDistance += distance - previousDistance;
+                accumDistance += Mathf.Abs(distance - previousDistance);
                 segment.Add(new SamplePoint(t, accumDistance));
 				previousDistance = distance;
 			}
@@ -79,11 +73,6 @@ public class CatmullRomSpeedControlled : MonoBehaviour
             }
         }
 
-		//Vector3 p0 = points[(currentIndex - 1 + points.Length) % points.Length].position;
-		//Vector3 p1 = points[currentIndex].position;
-		//Vector3 p2 = points[(currentIndex + 1) % points.Length].position;
-		//Vector3 p3 = points[(currentIndex + 2) % points.Length].position;
-		//transform.position = Utility.EvaluateCatmull(p0, p1, p2, p3, GetAdjustedT());
 		transform.position = Utility.EvaluateCatmull(GetAdjustedT(), currentIndex, points);
     }
 
@@ -100,6 +89,6 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 	private void OnDrawGizmos()
 	{
 		Utility.DrawCatmull(points, Gizmos.DrawLine);
-        Utility.DrawCatmullPoint(0.5f, 0, points);
+        //Utility.DrawCatmullPoint(0.5f, 0, points);
     }
 }
