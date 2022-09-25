@@ -21,8 +21,8 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 			this.accumulatedDistance = distanceCovered;
 		}
 	}
-	//list of segment samples makes it easier to index later
-	//imagine it like List<SegmentSamples>, and segment sample is a list of SamplePoints
+	
+	// Look-up table (LUT) that maps interpolation values to distances
 	List<List<SamplePoint>> table = new List<List<SamplePoint>>();
 
 	float distance = 0.0f;
@@ -32,27 +32,32 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 
 	private void Start()
 	{
-		//make sure there are 4 points, else disable the component
+		// Disable the component if there are less than 4 points
 		if (points.Length < 4)
 		{
 			enabled = false;
 		}
 
-		//calculate the speed graph table
+		// Create the look-up table
 		for (int i = 0; i < points.Length; ++i)
 		{
-			List<SamplePoint> segment = new List<SamplePoint>();
-            Vector3 p0 = points[(i - 1 + points.Length) % points.Length].position;
-            Vector3 p1 = points[i].position;
-            Vector3 p2 = points[(i + 1) % points.Length].position;
-            Vector3 p3 = points[(i + 2) % points.Length].position;
+            Vector3 p0, p1, p2, p3;
+            Utility.PointsFromIndex(i, points, out p0, out p1, out p2, out p3);
+            List<SamplePoint> segment = new List<SamplePoint>();
+			//Vector3 p0 = points[(i - 1 + points.Length) % points.Length].position;
+			//Vector3 p1 = points[i].position;
+			//Vector3 p2 = points[(i + 1) % points.Length].position;
+			//Vector3 p3 = points[(i + 2) % points.Length].position;
 
-            //calculate samples
-			for (int sample = 0; sample < sampleRate; ++sample)
+			// Calculate samples
+			float previousDistance = 0.0f;
+			for (int sample = 1; sample <= sampleRate; ++sample)
 			{
 				float t = sample / sampleRate;
-				accumDistance += Utility.EvaluateCatmull(p0, p1, p2, p3, t).magnitude;
+				float distance = Utility.EvaluateCatmull(p0, p1, p2, p3, t).magnitude;
+                accumDistance += distance - previousDistance;
                 segment.Add(new SamplePoint(t, accumDistance));
+				previousDistance = distance;
 			}
 			table.Add(segment);
 		}
@@ -63,7 +68,7 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 		distance += speed * Time.deltaTime;
 		float sampleDistance = table[currentIndex][currentSample].accumulatedDistance;
 
-        // Check if we need to update our samples
+        // Increment indices until travelled distance matches desired distance
         while (distance > table[currentIndex][currentSample].accumulatedDistance)
 		{
 			if (++currentSample >= sampleRate)
@@ -74,11 +79,12 @@ public class CatmullRomSpeedControlled : MonoBehaviour
             }
         }
 
-		Vector3 p0 = points[(currentIndex - 1 + points.Length) % points.Length].position;
-		Vector3 p1 = points[currentIndex].position;
-		Vector3 p2 = points[(currentIndex + 1) % points.Length].position;
-		Vector3 p3 = points[(currentIndex + 2) % points.Length].position;
-		transform.position = Utility.EvaluateCatmull(p0, p1, p2, p3, GetAdjustedT());
+		//Vector3 p0 = points[(currentIndex - 1 + points.Length) % points.Length].position;
+		//Vector3 p1 = points[currentIndex].position;
+		//Vector3 p2 = points[(currentIndex + 1) % points.Length].position;
+		//Vector3 p3 = points[(currentIndex + 2) % points.Length].position;
+		//transform.position = Utility.EvaluateCatmull(p0, p1, p2, p3, GetAdjustedT());
+		transform.position = Utility.EvaluateCatmull(GetAdjustedT(), currentIndex, points);
     }
 
 	float GetAdjustedT()
@@ -94,5 +100,6 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 	private void OnDrawGizmos()
 	{
 		Utility.DrawCatmull(points, Gizmos.DrawLine);
-	}
+        Utility.DrawCatmullPoint(0.5f, 0, points);
+    }
 }

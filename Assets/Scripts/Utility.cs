@@ -126,4 +126,11 @@ public static class Utility
         PointsFromIndex(i, points, out c0, out e0, out e1, out c1);
         return EvaluateCatmull(c0, e0, e1, c1, t);
     }
+
+    public static void DrawCatmullPoint(float t, int i, Transform[] points)
+    {
+        Vector3 p0, p1, p2, p3;
+        PointsFromIndex(i, points, out p0, out p1, out p2, out p3);
+        Gizmos.DrawSphere(EvaluateCatmull(p0, p1, p2, p3, t), 0.25f);
+    }
 }
