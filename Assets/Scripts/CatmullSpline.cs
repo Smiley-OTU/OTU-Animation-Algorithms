@@ -12,9 +12,20 @@ public class CatmullSpline : MonoBehaviour
 
     void Update()
     {
-        transform.position = Utility.EvaluateCatmull(t, i, points);
-
+        Vector3 p0 = Utility.EvaluateCatmull(t, i, points);
         t += Time.smoothDeltaTime;
+		Vector3 p1 = Utility.EvaluateCatmull(t, i, points);
+        transform.position = p1;//Utility.EvaluateCatmull(t, i, points);
+
+        Vector3 forward = (p1 - p0).normalized;
+        Vector3 right = Vector3.Cross(forward, Vector3.up);
+        Vector3 up = Vector3.Cross(forward, right);
+        Matrix4x4 rotation = Matrix4x4.identity;
+        rotation.SetColumn(0, right);
+        rotation.SetColumn(1, up);
+        rotation.SetColumn(2, forward);
+        transform.rotation = rotation.rotation;
+
         if (t >= 1.0f)
         {
             t = 0.0f;
