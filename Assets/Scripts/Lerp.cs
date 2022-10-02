@@ -12,7 +12,6 @@ public class Lerp : MonoBehaviour
     private float time = timeMin;
     private bool right = true;
 
-    // Start is called before the first frame update
     void Start()
     {
         Quaternion rotSrc = Quaternion.Euler(0.0f, 0.0f, 0.0f);
@@ -22,7 +21,6 @@ public class Lerp : MonoBehaviour
         transform.rotation = Quaternion.Slerp(rotSrc, rotDst, 0.5f);
     }
 
-    // Update is called once per frame
     void Update()
     {
         float t = right ? time / timeMax : 1.0f - (time / timeMax);
@@ -33,6 +31,38 @@ public class Lerp : MonoBehaviour
         {
             time = timeMin;
             right = !right;
+        }
+    }
+
+    float SolveT(float n, float a, float b)
+    {
+        return (n - a) / (b - a);
+    }
+
+    void SolveQuestions()
+    {
+        {   // Question 1
+            float t = SolveT(4.0f, 7.0f, 2.0f);     // 0.6
+            float x = Mathf.Lerp(-7.0f, -1.0f, t);  // -3.4
+            float y = Mathf.Lerp(7.0f, 2.0f, t);    // 4
+        }
+
+        {   // Question 2
+            float t = SolveT(5.0f, 4.0f, 7.0f);     // 0.33
+            float x = Mathf.Lerp(4.0f, 7.0f, t);    // 5
+            float y = Mathf.Lerp(3.0f, -7.0f, t);   // -0.33
+        }
+
+        {   // Question 3
+            float t = SolveT(-6.5f, -7.0f, -1.0f);  // 0.083
+            float x = Mathf.Lerp(-7.0f, -1.0f, t);  // -6.5
+            float y = Mathf.Lerp(7.0f, 2.0f, t);    // 6.583
+        }
+
+        {   // Question 4
+            float t = 62.0f / 100.0f;               // 0.62
+            float x = Mathf.Lerp(1.0f, -6.0f, t);   // -3.34
+            float y = Mathf.Lerp(-6.0f, -3.0f, t);  // -4.14
         }
     }
 }
