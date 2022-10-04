@@ -14,6 +14,7 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] float jumpDuration = 0.5f;
 
     Rigidbody body;
+    Animator animator;
     AnimationManager animationManager;
 
 	public enum Animations

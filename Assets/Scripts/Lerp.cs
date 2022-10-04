@@ -15,10 +15,13 @@ public class Lerp : MonoBehaviour
     void Update()
     {
         float t = right ? time / timeMax : 1.0f - (time / timeMax);
-        Quaternion rotSrc = Quaternion.Euler(0.0f, 0.0f, 0.0f);
-        Quaternion rotDst = Quaternion.Euler(0.0f, 90.0f, 0.0f);
-        transform.rotation = Quaternion.Slerp(rotSrc, rotDst, t);
-        transform.position = Vector3.Lerp(src.position, dst.position, t);
+		Quaternion rotSrc = Quaternion.Euler(0.0f, 0.0f, 0.0f);
+		Quaternion rotDst = Quaternion.Euler(0.0f, 90.0f, 0.0f);
+        transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, t);
+		transform.rotation = Quaternion.Slerp(rotSrc, rotDst, t);
+		transform.position = Vector3.Lerp(src.position, dst.position, t);
+        GetComponent<Renderer>().material.color =
+            Color.Lerp(Color.green, Color.red, t);
 
         time += Time.smoothDeltaTime;
         if (time >= timeMax)
