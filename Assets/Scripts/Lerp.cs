@@ -12,10 +12,6 @@ public class Lerp : MonoBehaviour
     private float time = timeMin;
     private bool right = true;
 
-    void Start()
-    {
-    }
-
     void Update()
     {
         float t = right ? time / timeMax : 1.0f - (time / timeMax);
@@ -32,7 +28,12 @@ public class Lerp : MonoBehaviour
         }
     }
 
-    void SolveQuestions()
+	void Start()
+	{
+        SolveQuestions();
+	}
+
+	void SolveQuestions()
     {
         {   // Question 1
             float t = SolveT(4.0f, 7.0f, 2.0f);     // 0.6

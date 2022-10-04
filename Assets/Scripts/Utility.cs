@@ -133,4 +133,16 @@ public static class Utility
         PointsFromIndex(i, points, out p0, out p1, out p2, out p3);
         Gizmos.DrawSphere(EvaluateCatmull(p0, p1, p2, p3, t), 0.25f);
     }
+
+    public static Matrix4x4 FrenetFrame(Vector3 from, Vector3 to, Vector3 up)
+	{
+		Matrix4x4 rotation = Matrix4x4.identity;
+		Vector3 forward = (to - from).normalized;
+		Vector3 right = Vector3.Cross(forward, up);
+		Vector3 above = Vector3.Cross(forward, right);
+		rotation.SetColumn(0, right);
+		rotation.SetColumn(1, above);
+		rotation.SetColumn(2, forward);
+		return rotation;
+	}
 }
