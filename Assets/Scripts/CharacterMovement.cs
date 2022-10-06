@@ -14,7 +14,6 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] float jumpDuration = 0.5f;
 
     Rigidbody body;
-    Animator animator;
     AnimationManager animationManager;
 
 	public enum Animations
@@ -67,11 +66,13 @@ public class CharacterMovement : MonoBehaviour
         else
             animationManager.Change(Animations.IDLE);
 
-        //if (jumpAction.triggered)
-        //{
-        //    animationManager.Change(Animations.JUMP);
-        //    StartCoroutine(Jump());
-        //}
+        // Velocity is set to 0 on no input, so either modify state or velocity code to account for this
+        // Might need to solve for velocity at point in arc based on time since start of jump!
+        if (jumpAction.triggered)
+        {
+            animationManager.Change(Animations.JUMP);
+            // insert velocity code here
+        }
     }
 
     IEnumerator Jump()
