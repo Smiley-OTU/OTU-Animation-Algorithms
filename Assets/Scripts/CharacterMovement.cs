@@ -67,11 +67,11 @@ public class CharacterMovement : MonoBehaviour
         else
             animationManager.Change(Animations.IDLE);
 
-        if (jumpAction.triggered)
-        {
-            animationManager.Change(Animations.JUMP);
-            StartCoroutine(Jump());
-        }
+        //if (jumpAction.triggered)
+        //{
+        //    animationManager.Change(Animations.JUMP);
+        //    StartCoroutine(Jump());
+        //}
     }
 
     IEnumerator Jump()
