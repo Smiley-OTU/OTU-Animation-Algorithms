@@ -928,8 +928,7 @@ MonoBehaviour:
     m_Flags: 0
   moveSpeed: 5
   sprintSpeed: 10
-  jumpPower: 5
-  jumpDuration: 0.5
+  jumpHeight: 2
 --- !u!95 &1414715241
 Animator:
   serializedVersion: 4

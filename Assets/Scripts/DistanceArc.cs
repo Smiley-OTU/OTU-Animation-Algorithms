@@ -29,7 +29,4 @@ public class DistanceArc : MonoBehaviour
         }
         time += Time.deltaTime;
     }
-
-    
-    
 }

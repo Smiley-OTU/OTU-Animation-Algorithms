@@ -10,8 +10,8 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] InputAction jumpAction;
     [SerializeField] float moveSpeed = 2;
     [SerializeField] float sprintSpeed = 4;
-    [SerializeField] float jumpPower = 5;
-    [SerializeField] float jumpDuration = 0.5f;
+    [SerializeField] float jumpHeight = 5.0f;
+    private float jumpVelocity;
 
     Rigidbody body;
     AnimationManager animationManager;
@@ -40,8 +40,12 @@ public class CharacterMovement : MonoBehaviour
 
     void Start()
     {
-        body = GetComponent<Rigidbody>();
         animationManager = GetComponent<AnimationManager>();
+        body = GetComponent<Rigidbody>();
+        jumpVelocity = Physics.ArcFromDistance(jumpHeight);
+
+        // Animation time should match jump time
+        Debug.Log(Physics.ArcDuration(jumpHeight, jumpVelocity));
     }
 
     void Update()
@@ -51,10 +55,13 @@ public class CharacterMovement : MonoBehaviour
         Vector3 rotation = transform.eulerAngles;
         rotation.y += yaw;
         transform.eulerAngles = rotation;
+        Vector3 direction = transform.rotation * Vector3.forward;
 
         bool movement = Mathf.Abs(moveInput.y) > Mathf.Epsilon;
         bool sprint = sprintAction.IsPressed();
-        body.velocity = transform.rotation * Vector3.forward * moveInput.y * (sprint ? sprintSpeed : moveSpeed);
+
+        float groundSpeed = moveInput.y * (sprint ? sprintSpeed : moveSpeed);
+        body.velocity = new Vector3(direction.x * groundSpeed, body.velocity.y, direction.z * groundSpeed);
 
         if (movement)
         {
@@ -66,35 +73,11 @@ public class CharacterMovement : MonoBehaviour
         else
             animationManager.Change(Animations.IDLE);
 
-        // Velocity is set to 0 on no input, so either modify state or velocity code to account for this
-        // Might need to solve for velocity at point in arc based on time since start of jump!
+        // TODO -- make a timer to prevent multiple jumps until jump timer has expired
         if (jumpAction.triggered)
         {
             animationManager.Change(Animations.JUMP);
-            // insert velocity code here
+            body.velocity = new Vector3(body.velocity.x, jumpVelocity, body.velocity.z);
         }
-    }
-
-    IEnumerator Jump()
-    {
-        float elaspedTime = 0.0f;
-
-        while(elaspedTime < jumpDuration / 2)
-        {
-            body.velocity = new Vector3(body.velocity.x, Mathf.Lerp(jumpPower, 0, elaspedTime / (jumpDuration / 2)), body.velocity.z);
-            elaspedTime += Time.deltaTime;
-            yield return null;
-        }
-        elaspedTime = 0.0f;
-
-        while (elaspedTime < jumpDuration / 2)
-        {
-            body.velocity = new Vector3(body.velocity.x, Mathf.Lerp(0, -jumpPower, elaspedTime / (jumpDuration / 2)), body.velocity.z);
-            elaspedTime += Time.deltaTime;
-            yield return null;
-        }
-        body.velocity = Vector3.zero;
-
-        yield return null;
     }
 }

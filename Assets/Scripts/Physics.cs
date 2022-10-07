@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.Utilities;
 
 public class Physics
 {
@@ -39,20 +40,25 @@ public class Physics
         return vi;
     }
 
-    // Time of jump from height and initial velocity
     public static float ArcDuration(float height, float vi)
     {
-        // Motion equation 1
-        // vf = vi + a * t
-
-        // Re-arrange to solve for t
-        // (vf - vi) / a = t
-
-        // We know velocity is 0 at the top of the arc, so we have everything we need to solve!
-        float a = UnityEngine.Physics.gravity.y;
-        float t = -vi / a;
-
-        // Multiply by two because we solved for time till top of arc (which is half the total time)
-        return t * 2.0f;
+        // df = di + vi * t + 0.5(a * t * t)
+        return Quadratic(0.5f * UnityEngine.Physics.gravity.y, vi, height);
     }
+
+    private static float Quadratic(float a, float b, float c)
+	{
+		//t = (-b - sqrt(b^2 - 4ac))/2a
+
+		// a is the y acceleration
+		// b is initial velocity in y direction
+		// c is the initial height above ground
+		// t is the arc duration (return value)
+
+		float twoA = (2.0f * a);
+        float b2 = (b * b);
+        float fourAC = (4.0f * a * c);
+
+		return (-b - Mathf.Sqrt(b2 - fourAC)) / twoA;
+	}
 }
