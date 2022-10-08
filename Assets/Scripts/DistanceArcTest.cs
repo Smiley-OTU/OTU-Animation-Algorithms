@@ -3,29 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class DistanceArc : MonoBehaviour
+public class DistanceArcTest : MonoBehaviour
 {
     public float height;
 
-    private float duration;
     private float time;
-    private float viy;
     private Rigidbody body;
+    private ArcY arc;
 
     void Start()
     {
-        viy = Physics.ArcFromDistance(height);
-        duration = Physics.ArcDuration(height, viy);
+        arc = ArcY.From(new Distance { value = height });
         body = GetComponent<Rigidbody>();
-        body.velocity = Vector3.up * viy;
+        body.velocity = Vector3.up * arc.LaunchVelocity;
+        //arc.Log();
     }
 
     void Update()
     {
-        if (time >= duration)
+        if (time >= arc.Duration)
         {
             time = 0.0f;
-            body.velocity = Vector3.up * viy;
+            body.velocity = Vector3.up * arc.LaunchVelocity;
         }
         time += Time.deltaTime;
     }

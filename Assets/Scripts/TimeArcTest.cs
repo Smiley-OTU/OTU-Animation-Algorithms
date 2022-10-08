@@ -2,29 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TimeArc : MonoBehaviour
+public class TimeArcTest : MonoBehaviour
 {
     public float duration;
 
     private float time;
-    private float viy;
     private Rigidbody body;
+    private ArcY arc;
 
-    // Start is called before the first frame update
     void Start()
     {
+        arc = ArcY.From(new Duration { value = duration });
         body = GetComponent<Rigidbody>();
-        viy = Physics.ArcFromDuration(duration);
-        body.velocity = Vector3.up * viy;
+        body.velocity = Vector3.up * arc.LaunchVelocity;
+        //arc.Log();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (time >= duration)
+        if (time >= arc.Duration)
         {
             time = 0.0f;
-            body.velocity = Vector3.up * viy;
+            body.velocity = Vector3.up * arc.LaunchVelocity;
         }
         time += Time.deltaTime;
     }

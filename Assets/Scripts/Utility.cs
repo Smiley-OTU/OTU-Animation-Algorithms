@@ -145,4 +145,12 @@ public static class Utility
 		rotation.SetColumn(2, forward);
 		return rotation;
 	}
+
+    public static float Quadratic(float a, float b, float c)
+    {
+        float twoA = (2.0f * a);
+        float b2 = (b * b);
+        float fourAC = (4.0f * a * c);
+        return (-b + Mathf.Sqrt(b2 - fourAC)) / twoA;
+    }
 }

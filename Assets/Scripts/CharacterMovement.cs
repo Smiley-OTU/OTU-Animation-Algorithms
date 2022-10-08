@@ -11,8 +11,8 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] float moveSpeed = 2;
     [SerializeField] float sprintSpeed = 4;
     [SerializeField] float jumpHeight = 5.0f;
-    private float jumpVelocity;
 
+    private ArcY jumpArc;
     Rigidbody body;
     AnimationManager animationManager;
 
@@ -40,12 +40,12 @@ public class CharacterMovement : MonoBehaviour
 
     void Start()
     {
+        jumpArc = ArcY.From(new Distance { value = jumpHeight });
         animationManager = GetComponent<AnimationManager>();
         body = GetComponent<Rigidbody>();
-        jumpVelocity = Physics.ArcFromDistance(jumpHeight);
 
         // Animation time should match jump time
-        Debug.Log(Physics.ArcDuration(jumpHeight, jumpVelocity));
+        Debug.Log("Character jump duration: " + jumpArc.Duration);
     }
 
     void Update()
@@ -77,7 +77,7 @@ public class CharacterMovement : MonoBehaviour
         if (jumpAction.triggered)
         {
             animationManager.Change(Animations.JUMP);
-            body.velocity = new Vector3(body.velocity.x, jumpVelocity, body.velocity.z);
+            body.velocity = new Vector3(body.velocity.x, jumpArc.LaunchVelocity, body.velocity.z);
         }
     }
 }
