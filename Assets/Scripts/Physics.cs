@@ -26,6 +26,8 @@ public class Physics
     {
         // Motion equation 3
         // vf^2 = vi^2 + 2a(df - di)
+
+        // Re-arrange to solve for vi
         // vf^2 - vi^2 = 2a(df - di)
         // - vi^2 = 2a(df - di) - vf^2
         // vi^2 = -2a(df - di) + vf^2
@@ -43,22 +45,19 @@ public class Physics
     public static float ArcDuration(float height, float vi)
     {
         // df = di + vi * t + 0.5(a * t * t)
-        return Quadratic(0.5f * UnityEngine.Physics.gravity.y, vi, height);
+        // t = (-vi + sqrt(vi^2 - 4a * df)) / 2a
+
+        // Use positive discriminent because time cannot be negative
+        // Pass in negative height (0.5a * t^2 + vi * t - height = 0)
+        // Multiply by two because we reach the height at the top of (half way through) the arc
+        return Quadratic(0.5f * UnityEngine.Physics.gravity.y, vi, -height) * 2.0f;
     }
 
     private static float Quadratic(float a, float b, float c)
 	{
-		//t = (-b - sqrt(b^2 - 4ac))/2a
-
-		// a is the y acceleration
-		// b is initial velocity in y direction
-		// c is the initial height above ground
-		// t is the arc duration (return value)
-
 		float twoA = (2.0f * a);
         float b2 = (b * b);
         float fourAC = (4.0f * a * c);
-
-		return (-b - Mathf.Sqrt(b2 - fourAC)) / twoA;
+		return (-b + Mathf.Sqrt(b2 - fourAC)) / twoA;
 	}
 }
