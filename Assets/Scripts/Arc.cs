@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+// See https://en.wikipedia.org/wiki/Projectile_motion
 
 public struct Apex
 {
@@ -112,24 +113,5 @@ public class ArcY
         Debug.Log("vi " + LaunchVelocity);
         Debug.Log("d " + Apex);
         Debug.Log("t " + Duration);
-    }
-}
-
-// Hitting a target is a bit different.
-// We need to specify a launch angle (ie if 45 then y = sin(45), x = cos(45)
-
-public class Arc
-{
-    public Arc(Vector3 position, Vector3 target, float pitch, float duration, float projectileMass = 1.0f)
-    {
-        Vector3 direction = target - position;
-
-        // Horizontal velocity depends on the launch angle (pitch)
-        // Higher angle = longer flight = lower horizontal velocity
-        float distanceXZ = new Vector2(direction.x, direction.z).magnitude;
-        float velocityXZ = distanceXZ * Mathf.Cos(Mathf.Deg2Rad * pitch) / duration;
-
-        // Perhaps we can solve the vertical by determining how long it takes to go from 0 to target?
-
     }
 }
