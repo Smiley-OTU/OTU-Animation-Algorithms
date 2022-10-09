@@ -18,7 +18,7 @@ public class ArcY
     {
         float d = apex.value;
         float vi = ViFromApex(d);
-        float t = SolveDuration(d, vi);
+        float t = SolveApexDuration(vi);
         return new ArcY(d, t, vi);
     }
 
@@ -30,6 +30,16 @@ public class ArcY
         return new ArcY(d, t, vi);
     }
 
+    // Solve duration internally when unknown
+    public static float SolveApex(float vi)
+    {
+        // Motion equation 2 --> df = di + vi * t + 0.5a * t^2
+        float t = SolveApexDuration(vi) * 0.5f;
+        float d = vi * t + 0.5f * Physics.gravity.y * t * t;
+        return d;
+    }
+
+    // Pass in duration to simplify if its known
     private static float SolveApex(float duration, float vi)
     {
         // Motion equation 2 --> df = di + vi * t + 0.5a * t^2
@@ -38,16 +48,22 @@ public class ArcY
         return d;
     }
 
-    private static float SolveDuration(float distance, float vi)
+    // Time until top of arc
+    private static float SolveApexDuration(float vi)
     {
         // Motion equation 2
         // df = di + vi * t + 0.5a * t^2
         // t = 2vi / a
         return -2.0f * vi / Physics.gravity.y;
+    }
 
-        // Alternatively we can solve a quadratic, but that's less fun ;)
+    // Time until arbitrary height
+    private static float SolveDuration(float height, float vi)
+    {
+        // Motion equation 2
+        // df = di + vi * t + 0.5a * t^2
         // t = (-vi + sqrt(vi^2 - 4a * df)) / 2a
-        // Utility.Quadratic(0.5f * Physics.gravity.y, vi, -distance) * 2.0f;
+        return Utility.Quadratic(0.5f * Physics.gravity.y, vi, -height) * 2.0f;
     }
 
     private static float ViFromApex(float apex)
