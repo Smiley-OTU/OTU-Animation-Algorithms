@@ -26,26 +26,17 @@ public class ArcY
     {
         float t = duration.value;
         float vi = ViFromDuration(t);
-        float d = SolveApex(t, vi);
+        float d = SolveApex(vi);
         return new ArcY(d, t, vi);
     }
 
-    // Solve duration internally when unknown
     public static float SolveApex(float vi)
     {
-        // Motion equation 2 --> df = di + vi * t + 0.5a * t^2
-        float t = SolveApexDuration(vi) * 0.5f;
-        float d = vi * t + 0.5f * Physics.gravity.y * t * t;
-        return d;
-    }
-
-    // Pass in duration to simplify if its known
-    private static float SolveApex(float duration, float vi)
-    {
-        // Motion equation 2 --> df = di + vi * t + 0.5a * t^2
-        float t = duration * 0.5f;
-        float d = vi * t + 0.5f * Physics.gravity.y * t * t;
-        return d;
+        // Motion equation 3
+        // vf^2 = vi^2 + 2a(df - di)
+        // 0^2 = vi^2 + 2a(df - 0)
+        // df = vi^2 / 2a
+        return (vi * vi) / (-2.0f * Physics.gravity.y);
     }
 
     // Time until top of arc
