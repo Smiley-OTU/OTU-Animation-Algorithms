@@ -23,7 +23,7 @@ public class TimeArcTest : MonoBehaviour
         if (time >= arc.Duration)
         {
             time = 0.0f;
-            body.velocity = Vector3.up * arc.LaunchVelocity;
+            body.velocity = new Vector3(body.velocity.x, arc.LaunchVelocity, body.velocity.z);
         }
         time += Time.deltaTime;
     }

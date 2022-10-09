@@ -40,7 +40,7 @@ public class CharacterMovement : MonoBehaviour
 
     void Start()
     {
-        jumpArc = ArcY.From(new Distance { value = jumpHeight });
+        jumpArc = ArcY.From(new Apex { value = jumpHeight });
         animationManager = GetComponent<AnimationManager>();
         body = GetComponent<Rigidbody>();
 

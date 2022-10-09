@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class DistanceArcTest : MonoBehaviour
+public class HeightArcTest : MonoBehaviour
 {
     public float height;
 
@@ -13,7 +13,7 @@ public class DistanceArcTest : MonoBehaviour
 
     void Start()
     {
-        arc = ArcY.From(new Distance { value = height });
+        arc = ArcY.From(new Apex { value = height });
         body = GetComponent<Rigidbody>();
         body.velocity = Vector3.up * arc.LaunchVelocity;
         //arc.Log();
@@ -24,7 +24,7 @@ public class DistanceArcTest : MonoBehaviour
         if (time >= arc.Duration)
         {
             time = 0.0f;
-            body.velocity = Vector3.up * arc.LaunchVelocity;
+            body.velocity = new Vector3(body.velocity.x, arc.LaunchVelocity, body.velocity.z);
         }
         time += Time.deltaTime;
     }

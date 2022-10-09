@@ -976,7 +976,7 @@ GameObject:
   - component: {fileID: 1430099848}
   - component: {fileID: 1430099853}
   m_Layer: 0
-  m_Name: DistanceArc
+  m_Name: HeightArc
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
