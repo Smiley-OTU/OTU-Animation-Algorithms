@@ -30,6 +30,7 @@ public class ArcY
         return new ArcY(d, t, vi);
     }
 
+    // Top of arc
     public static float SolveApex(float vi)
     {
         // Motion equation 3
@@ -39,11 +40,12 @@ public class ArcY
         return (vi * vi) / (-2.0f * Physics.gravity.y);
     }
 
-    // Time until top of arc
+    // Time from launch to top of arc (half of total time)
     private static float SolveApexDuration(float vi)
     {
         // Motion equation 2
         // df = di + vi * t + 0.5a * t^2
+        // vi * t = 0.5a * t^2
         // t = 2vi / a
         return -2.0f * vi / Physics.gravity.y;
     }
@@ -57,20 +59,24 @@ public class ArcY
         return Utility.Quadratic(0.5f * Physics.gravity.y, vi, -height) * 2.0f;
     }
 
+    // Launch velocity given max height
     private static float ViFromApex(float apex)
     {
-        // Motion equation 3            --> vf^2 = vi^2 + 2a(df - di)
-        // Re-arrange to solve for vi   --> vi = sqrt(-2a * d)
+        // Motion equation 3
+        // vf^2 = vi^2 + 2a(df - di)
+        // vi = sqrt(-2a * d)
 
         float a = Physics.gravity.y;
         float vi = Mathf.Sqrt(-2.0f * a * apex);
         return vi;
     }
 
+    // Launch velocity given flight time
     private static float ViFromDuration(float duration)
     {
-        // Motion equation 1            --> vf = vi + at
-        // Re-arrange to solve for vi   --> vi = vf - at
+        // Motion equation 1
+        // vf = vi + at
+        // vi = vf - at
 
         float vf = 0.0f;
         float t = duration * 0.5f;
