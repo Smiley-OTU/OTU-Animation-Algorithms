@@ -536,8 +536,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74271ca11feb19d4cb9f9f6e5d7962be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  v: {x: 0, y: 0, z: 0}
-  a: {x: 0, y: 0, z: 0}
+  v: {x: 0, y: 0, z: 10}
+  a: {x: 0, y: 0, z: -1}
 --- !u!23 &1026964264
 MeshRenderer:
   m_ObjectHideFlags: 0
