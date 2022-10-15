@@ -4,24 +4,24 @@ using UnityEngine;
 
 public class Body : MonoBehaviour
 {
-    //float v, w, r;
-    public Vector3 v;
-    public Vector3 a;
+    //public Vector3 v;
+    //public Vector3 a;
 
     void Start()
     {
-        //v = 10.0f;  // 10.0 m/s
-        //r = 10.0f;  // 10m radius
-        //w = v / r;  // w = v / r
     }
 
     void Update()
     {
+        // w = v / r
+
+
         float dt = Time.deltaTime;
-        transform.rotation = Utility.FrenetFrame(transform.position, transform.position + v, Vector3.up).rotation;
-        a = transform.right * 10.0f * dt;
-        v += a * dt;
-        transform.position += v * dt;
+
+        //a = transform.right * 10.0f * dt;
+        //v += a * dt;
+        transform.Rotate(new Vector3(0.0f, 100.0f * dt, 0.0f));
+        transform.position += transform.forward * 10.0f * dt;
 
         //transform.Rotate(new Vector3(0.0f, w * dt, 0.0f));
         //transform.position += transform.forward * v * dt;
