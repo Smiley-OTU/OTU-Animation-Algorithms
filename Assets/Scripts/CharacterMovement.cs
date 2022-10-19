@@ -78,6 +78,11 @@ public class CharacterMovement : MonoBehaviour
         {
             animationManager.Change(Animations.JUMP);
             body.velocity = new Vector3(body.velocity.x, jumpArc.LaunchVelocity, body.velocity.z);
+
+            // This is the same as above:
+            Vector3 force = new Vector3(body.velocity.x, jumpArc.LaunchVelocity, body.velocity.z);
+            //force /= Time.fixedDeltaTime;
+            //body.AddForce(force, ForceMode.Force);
         }
     }
 }
