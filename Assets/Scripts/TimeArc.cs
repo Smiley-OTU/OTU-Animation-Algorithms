@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TimeArcTest : MonoBehaviour
+public class TimeArc : MonoBehaviour
 {
     public float duration;
 

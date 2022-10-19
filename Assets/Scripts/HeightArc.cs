@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class HeightArcTest : MonoBehaviour
+public class HeightArc : MonoBehaviour
 {
     public float height;
 
@@ -16,7 +16,7 @@ public class HeightArcTest : MonoBehaviour
         arc = ArcY.From(new Apex { value = height });
         body = GetComponent<Rigidbody>();
         body.velocity = Vector3.up * arc.LaunchVelocity;
-        //arc.Log();
+        arc.Log();
     }
 
     void Update()
