@@ -157,7 +157,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 773500490}
-  linearSpeed: 1
+  linearSpeed: 100
   angularSpeed: 1
 --- !u!65 &54743666
 BoxCollider:

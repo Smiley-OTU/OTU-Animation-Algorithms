@@ -31,22 +31,12 @@ public class Steering : MonoBehaviour
         float dt = Time.fixedDeltaTime;
         Vector3 toTarget = (target.position - transform.position).normalized;
 
-        //transform.position = Vector3.MoveTowards(transform.position, target.position, dt * linearSpeed);
-        //transform.rotation = Quaternion.FromToRotation(transform.forward, toTarget);
-        transform.position = Vector3.MoveTowards(transform.position, target.position, dt * linearSpeed);
+        // TODO -- make this accelerate?
+        Vector3 lvDir = rb.velocity.normalized;
+        rb.AddForce((toTarget - lvDir) * linearSpeed); 
+
+        // Using AddTorque() to rotate towards a target is hard to control. This suffices.
         Vector3 rotation = Vector3.RotateTowards(transform.forward, toTarget, dt * angularSpeed, 0.0f);
         transform.rotation = Quaternion.LookRotation(rotation);
     }
-    /*
-    Vector3 lvCurrent = linearSpeed * transform.forward;
-    Vector3 lvDesired = linearSpeed * toTarget;
-    Vector3 lvDelta = lvDesired - lvCurrent;
-    */
-
-    /*
-    Vector3 lvDir = rb.velocity.normalized;
-    Vector3 avDir = rb.angularVelocity.normalized;
-    rb.AddForce((toTarget - lvDir) * linearSpeed, ForceMode.Acceleration);
-    rb.AddTorque((toTarget - avDir) * angularSpeed, ForceMode.Acceleration); 
-    */
 }
