@@ -8,7 +8,9 @@ public class Steering : MonoBehaviour
     private Transform target;
 
     [SerializeField]
-    private float speed;
+    private float linearSpeed;
+    [SerializeField]
+    private float angularSpeed;
 
     private Rigidbody rb;
 
@@ -16,6 +18,7 @@ public class Steering : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        rb.AddForce(transform.forward * linearSpeed);
     }
 
     void FixedUpdate()
@@ -25,9 +28,25 @@ public class Steering : MonoBehaviour
 
     private void Seek()
     {
-        Vector3 vCurrent = speed * transform.forward;
-        Vector3 vDesired = speed * (target.position - transform.position);
-        Vector3 vDelta = vDesired - vCurrent;
-        rb.AddForce(vDelta, ForceMode.Acceleration);
+        float dt = Time.fixedDeltaTime;
+        Vector3 toTarget = (target.position - transform.position).normalized;
+
+        //transform.position = Vector3.MoveTowards(transform.position, target.position, dt * linearSpeed);
+        //transform.rotation = Quaternion.FromToRotation(transform.forward, toTarget);
+        transform.position = Vector3.MoveTowards(transform.position, target.position, dt * linearSpeed);
+        Vector3 rotation = Vector3.RotateTowards(transform.forward, toTarget, dt * angularSpeed, 0.0f);
+        transform.rotation = Quaternion.LookRotation(rotation);
     }
+    /*
+    Vector3 lvCurrent = linearSpeed * transform.forward;
+    Vector3 lvDesired = linearSpeed * toTarget;
+    Vector3 lvDelta = lvDesired - lvCurrent;
+    */
+
+    /*
+    Vector3 lvDir = rb.velocity.normalized;
+    Vector3 avDir = rb.angularVelocity.normalized;
+    rb.AddForce((toTarget - lvDir) * linearSpeed, ForceMode.Acceleration);
+    rb.AddTorque((toTarget - avDir) * angularSpeed, ForceMode.Acceleration); 
+    */
 }
