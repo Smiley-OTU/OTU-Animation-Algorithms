@@ -34,7 +34,9 @@ public class Steering : MonoBehaviour
     void FixedUpdate()
     {
         float dt = Time.fixedDeltaTime;
-        Vector3 targetDirection = (target.position - transform.position).normalized;
+        Vector3 toTarget = target.position - transform.position;
+        Vector3 targetDirection = toTarget.normalized;
+        float targetDistance = toTarget.magnitude;
 
         switch(state)
         {
@@ -44,6 +46,10 @@ public class Steering : MonoBehaviour
 
             case SteeringBehaviour.SEEK_LINEAR:
                 SeekLinearSpeed(targetDirection);
+                break;
+
+            case SteeringBehaviour.ARRIVE:
+                Arrive(targetDirection, targetDistance, targetDistance * 0.75f);
                 break;
         }
 
@@ -62,6 +68,15 @@ public class Steering : MonoBehaviour
         // Seek with increasing/decreasing speed by subtracting the constant of target direction *
         // linear velocity by the ever-changing rigid body velocity to create a feedback loop!
         rb.AddForce(targetDirection * linearSpeed - rb.velocity);
+    }
+
+    private void Arrive(Vector3 targetDirection, float targetDistance, float slowRadius)
+    {
+        SeekLinearSpeed(targetDirection);
+        if (targetDistance <= slowRadius)
+        {
+            SeekLinearSpeed(-targetDirection);
+        }
     }
 
     private void RotateTowards(Vector3 targetDirection, float dt)
