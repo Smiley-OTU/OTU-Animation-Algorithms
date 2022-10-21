@@ -10,20 +10,26 @@ public class Steering : MonoBehaviour
 
     [SerializeField]
     private float linearSpeed;
+
     [SerializeField]
     private float angularSpeed;
 
-    private Rigidbody rb;
-
-    public enum SteeringBehaviour
-    {
-        SEEK_CONSTANT,
-        SEEK_LINEAR,
-        ARRIVE
-    };
+    [SerializeField]
+    private float proximity;
 
     [SerializeField]
     private SteeringBehaviour state;
+
+    public enum SteeringBehaviour
+    {
+        LINE,
+        SEEK,
+        FLEE,
+        PROXIMITY_FLEE,
+        ARRIVE
+    };
+
+    private Rigidbody rb;
 
     void Start()
     {
@@ -40,30 +46,38 @@ public class Steering : MonoBehaviour
 
         switch(state)
         {
-            case SteeringBehaviour.SEEK_CONSTANT:
-                SeekConstantSpeed(targetDirection);
+            case SteeringBehaviour.LINE:
+                Line(targetDirection);
                 break;
 
-            case SteeringBehaviour.SEEK_LINEAR:
-                SeekLinearSpeed(targetDirection);
+            case SteeringBehaviour.SEEK:
+                Seek(targetDirection);
+                break;
+
+            case SteeringBehaviour.FLEE:
+                Seek(-targetDirection);
+                break;
+
+            case SteeringBehaviour.PROXIMITY_FLEE:
+                ProximityFlee(targetDirection, targetDistance, proximity);
                 break;
 
             case SteeringBehaviour.ARRIVE:
-                Arrive(targetDirection, targetDistance, targetDistance * 0.75f);
+                Arrive(targetDirection, targetDistance, proximity);
                 break;
         }
 
         RotateTowards(targetDirection, dt);
     }
 
-    private void SeekConstantSpeed(Vector3 targetDirection)
+    private void Line(Vector3 targetDirection)
     {
         // Applies constant speed by subtracting direction vectors and multiplying the result by linear velocity.
         Vector3 linearVelocityDirection = rb.velocity.normalized;
         rb.AddForce((targetDirection - linearVelocityDirection) * linearSpeed);
     }
 
-    private void SeekLinearSpeed(Vector3 targetDirection)
+    private void Seek(Vector3 targetDirection)
     {
         // Seek with increasing/decreasing speed by subtracting the constant of target direction *
         // linear velocity by the ever-changing rigid body velocity to create a feedback loop!
@@ -72,10 +86,29 @@ public class Steering : MonoBehaviour
 
     private void Arrive(Vector3 targetDirection, float targetDistance, float slowRadius)
     {
-        SeekLinearSpeed(targetDirection);
+        // Attenuate velocity based on proximity;
+        // (targetDistance / slowRadius) approaches zero as the object approaches the target.
         if (targetDistance <= slowRadius)
         {
-            SeekLinearSpeed(-targetDirection);
+            rb.velocity = (targetDirection * linearSpeed - rb.velocity) * (targetDistance / slowRadius);
+        }
+        else
+        {
+            Seek(targetDirection);
+        }
+    }
+
+    private void ProximityFlee(Vector3 targetDirection, float targetDistance, float fleeRadius)
+    {
+        // Similar to arrive but with a lazier attenuation method.
+        // (Must pass more information if we want to attenuate more gradually).
+        if (targetDistance <= fleeRadius)
+        {
+            Seek(-targetDirection);
+        }
+        else
+        {
+            rb.velocity *= 0.90f;
         }
     }
 

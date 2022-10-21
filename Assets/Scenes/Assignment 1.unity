@@ -159,7 +159,8 @@ MonoBehaviour:
   target: {fileID: 773500490}
   linearSpeed: 100
   angularSpeed: 1
-  state: 2
+  proximity: 10
+  state: 3
 --- !u!65 &54743666
 BoxCollider:
   m_ObjectHideFlags: 0

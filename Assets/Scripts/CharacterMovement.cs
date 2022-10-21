@@ -45,7 +45,7 @@ public class CharacterMovement : MonoBehaviour
         body = GetComponent<Rigidbody>();
 
         // Animation time should match jump time
-        Debug.Log("Character jump duration: " + jumpArc.Duration);
+        //Debug.Log("Character jump duration: " + jumpArc.Duration);
     }
 
     void Update()
