@@ -159,6 +159,7 @@ MonoBehaviour:
   target: {fileID: 773500490}
   linearSpeed: 100
   angularSpeed: 1
+  state: 1
 --- !u!65 &54743666
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -478,7 +479,7 @@ SphereCollider:
   m_GameObject: {fileID: 773500489}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
