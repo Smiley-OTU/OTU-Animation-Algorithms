@@ -15,7 +15,9 @@ public class TimeArc : MonoBehaviour
         arc = ArcY.From(new Duration { value = duration });
         body = GetComponent<Rigidbody>();
         body.velocity = Vector3.up * arc.LaunchVelocity;
-        //arc.Log();
+
+        Debug.Log("Time arc parameters:");
+        arc.Log();
     }
 
     void Update()

@@ -33,7 +33,7 @@ public class Lerp : MonoBehaviour
 
 	void Start()
 	{
-        SolveQuestions();
+        //SolveQuestions();
 	}
 
 	void SolveQuestions()

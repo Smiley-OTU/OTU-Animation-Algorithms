@@ -16,6 +16,8 @@ public class HeightArc : MonoBehaviour
         arc = ArcY.From(new Apex { value = height });
         body = GetComponent<Rigidbody>();
         body.velocity = Vector3.up * arc.LaunchVelocity;
+
+        Debug.Log("Height arc parameters:");
         arc.Log();
     }
 
