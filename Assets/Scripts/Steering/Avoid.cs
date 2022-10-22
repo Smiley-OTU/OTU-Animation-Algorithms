@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Avoid : MonoBehaviour
 {
-    private Steering parent;
+    private Seeker parent;
     void Start()
     {
-        parent = GetComponentInParent<Steering>();
+        parent = GetComponentInParent<Seeker>();
     }
 
     // TODO -- refactor so steering is a collection of static methods
