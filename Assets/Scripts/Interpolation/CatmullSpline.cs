@@ -12,10 +12,10 @@ public class CatmullSpline : MonoBehaviour
 
 	void Update()
     {
-        Vector3 p0 = Utility.EvaluateCatmull(t, i, points);
+        Vector3 p0 = Interpolation.EvaluateCatmull(t, i, points);
         t += Time.smoothDeltaTime;
-		Vector3 p1 = Utility.EvaluateCatmull(t, i, points);
-        Matrix4x4 rotation = Utility.FrenetFrame(p1, p0, Vector3.up);
+		Vector3 p1 = Interpolation.EvaluateCatmull(t, i, points);
+        Matrix4x4 rotation = Interpolation.FrenetFrame(p1, p0, Vector3.up);
         transform.position = p1;
 		transform.rotation = rotation.rotation;
 
@@ -28,6 +28,6 @@ public class CatmullSpline : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        Utility.DrawCatmull(points, Gizmos.DrawLine);
+        Interpolation.DrawCatmull(points, Gizmos.DrawLine);
     }
 }

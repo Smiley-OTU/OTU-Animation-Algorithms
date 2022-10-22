@@ -161,7 +161,7 @@ public class EnemyMovement : MonoBehaviour
         Vector3 euler = transform.eulerAngles;
         euler.y = y;
         transform.eulerAngles = euler;
-        Utility.InRangeDebug(transform, target.transform, length, fov);
+        Locomotion.InRangeDebug(transform, target.transform, length, fov);
 
         elapsedTime += Time.smoothDeltaTime;
         if (elapsedTime > rotationDuration)

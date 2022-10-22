@@ -39,19 +39,19 @@ public class Lerp : MonoBehaviour
 	void SolveQuestions()
     {
         {   // Question 1
-            float t = SolveT(4.0f, 7.0f, 2.0f);     // 0.6
+            float t = Interpolation.SolveT(4.0f, 7.0f, 2.0f);     // 0.6
             float x = Mathf.Lerp(-7.0f, -1.0f, t);  // -3.4
             float y = Mathf.Lerp(7.0f, 2.0f, t);    // 4
         }
 
         {   // Question 2
-            float t = SolveT(5.0f, 4.0f, 7.0f);     // 0.33
+            float t = Interpolation.SolveT(5.0f, 4.0f, 7.0f);     // 0.33
             float x = Mathf.Lerp(4.0f, 7.0f, t);    // 5
             float y = Mathf.Lerp(3.0f, -7.0f, t);   // -0.33
         }
 
         {   // Question 3
-            float t = SolveT(-6.5f, -7.0f, -1.0f);  // 0.083
+            float t = Interpolation.SolveT(-6.5f, -7.0f, -1.0f);  // 0.083
             float x = Mathf.Lerp(-7.0f, -1.0f, t);  // -6.5
             float y = Mathf.Lerp(7.0f, 2.0f, t);    // 6.583
         }
@@ -63,13 +63,13 @@ public class Lerp : MonoBehaviour
         }
 
         {   // Question 5 (distance along curve = 0.6)
-            float t = SolveT(0.6f, 0.574f, 0.739f);
+            float t = Interpolation.SolveT(0.6f, 0.574f, 0.739f);
             float x = Mathf.Lerp(0.275f, 0.363f, t);
             float y = Mathf.Lerp(0.675f, 0.535f, t);
         }
 
         {   // Question 6
-            Vector3 solution = Decasteljau
+            Vector3 solution = Interpolation.Decasteljau
             (
                 new Vector3(-6.0f, -3.0f, 0.0f),
                 new Vector3(-1.0f, 2.0f, 0.0f),
@@ -78,22 +78,5 @@ public class Lerp : MonoBehaviour
                 0.75f
             );
         }
-    }
-
-    float SolveT(float n, float a, float b)
-    {
-        return (n - a) / (b - a);
-    }
-
-    Vector3 Decasteljau(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
-    {
-        Vector3 A = Vector3.Lerp(p0, p1, t);
-        Vector3 B = Vector3.Lerp(p1, p2, t);
-        Vector3 C = Vector3.Lerp(p2, p3, t);
-
-        Vector3 D = Vector3.Lerp(A, B, t);
-        Vector3 E = Vector3.Lerp(B, C, t);
-
-        return Vector3.Lerp(D, E, t);
     }
 }

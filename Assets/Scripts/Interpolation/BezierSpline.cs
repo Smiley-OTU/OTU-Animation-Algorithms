@@ -13,11 +13,11 @@ public class BezierSpline : MonoBehaviour
     void Update()
     {
         float t = Mathf.Cos(Time.realtimeSinceStartup) * 0.5f + 0.5f;
-        transform.position = Utility.EvaluateBezier(p0.position, p1.position, p2.position, p3.position, t);
+        transform.position = Interpolation.EvaluateBezier(p0.position, p1.position, p2.position, p3.position, t);
     }
 
     void OnDrawGizmos()
     {
-        Utility.DrawBezier(p0.position, p1.position, p2.position, p3.position, Gizmos.DrawLine);
+        Interpolation.DrawBezier(p0.position, p1.position, p2.position, p3.position, Gizmos.DrawLine);
     }
 }

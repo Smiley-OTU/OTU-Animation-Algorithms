@@ -46,7 +46,7 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 		for (int i = 0; i < points.Length; ++i)
 		{
             Vector3 p0, p1, p2, p3;
-            Utility.PointsFromIndex(i, points, out p0, out p1, out p2, out p3);
+            Interpolation.PointsFromIndex(i, points, out p0, out p1, out p2, out p3);
             List<SamplePoint> segment = new List<SamplePoint>();
 
 			float arcLength = 0.0f;
@@ -54,8 +54,8 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 			segment.Add(new SamplePoint(0.0f, 0.0f));
 			for (float t = step; t <= 1.0f; t+=step)
 			{
-				Vector3 a = Utility.EvaluateCatmull(t - step, i, points);
-				Vector3 b = Utility.EvaluateCatmull(t, i, points);
+				Vector3 a = Interpolation.EvaluateCatmull(t - step, i, points);
+				Vector3 b = Interpolation.EvaluateCatmull(t, i, points);
 				Vector3 line = b - a;
 				arcLength += line.magnitude;
 				segment.Add(new SamplePoint(t, arcLength));
@@ -81,7 +81,7 @@ public class CatmullRomSpeedControlled : MonoBehaviour
             }
         }
 
-        transform.position = Utility.EvaluateCatmull(GetAdjustedT(), intervalIndex, points);
+        transform.position = Interpolation.EvaluateCatmull(GetAdjustedT(), intervalIndex, points);
     }
 
 	float GetAdjustedT()
@@ -97,12 +97,12 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 
     private void OnDrawGizmos()
 	{
-		Utility.DrawCatmull(points, Gizmos.DrawLine);
+        Interpolation.DrawCatmull(points, Gizmos.DrawLine);
         for (int i = 0; i < points.Length; ++i)
 		{
             for (float t = 0.0f; t < 1.0f; t += 1.0f / intervals)
             {
-                Utility.DrawCatmullPoint(t, i, points);
+                Interpolation.DrawCatmullPoint(t, i, points);
             }
         }
     }
