@@ -12,9 +12,10 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] float sprintSpeed = 4;
     [SerializeField] float jumpHeight = 5.0f;
 
-    private ArcY jumpArc;
     Rigidbody body;
     AnimationManager animationManager;
+
+    private ArcY jumpArc;
 
 	public enum Animations
 	{

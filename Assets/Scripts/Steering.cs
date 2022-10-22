@@ -22,6 +22,7 @@ public class Steering : MonoBehaviour
 
     public enum SteeringBehaviour
     {
+        NONE,
         LINE,
         SEEK,
         FLEE,
@@ -34,7 +35,7 @@ public class Steering : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.AddForce(transform.forward * linearSpeed);
+        //rb.AddForce(transform.forward * linearSpeed);
     }
 
     void FixedUpdate()
@@ -65,9 +66,17 @@ public class Steering : MonoBehaviour
             case SteeringBehaviour.ARRIVE:
                 Arrive(targetDirection, targetDistance, proximity);
                 break;
+
+            default:
+                break;
         }
 
         RotateTowards(targetDirection, dt);
+    }
+
+    public void OnObstacleAhead(Collider collider)
+    {
+        Debug.Log(collider.name);
     }
 
     private void Line(Vector3 targetDirection)
