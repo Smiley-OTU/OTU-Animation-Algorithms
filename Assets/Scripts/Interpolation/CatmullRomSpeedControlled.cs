@@ -2,23 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Strictly spline-following at a constant speed.
+// More elaborate update function needed for racing!
 public class CatmullRomSpeedControlled : MonoBehaviour
 {
 	public Transform[] points;
-	public float speed = 1.0f;
+	public float speed = 10.0f;
+	private float distance = 0.0f;
 
 	[Range(1, 32)]
 	public int intervals = 16;
 	private int samples;
+	private int interval = 0;
+	private int sample = 0;
 
 	// Look-up table (LUT) that maps interpolation values to distances
-	List<List<Interpolation.SamplePoint>> table = new List<List<Interpolation.SamplePoint>>();
+	private List<List<Interpolation.SamplePoint>> table = new List<List<Interpolation.SamplePoint>>();
 
-	float distance = 0.0f;
-	int intervalIndex = 0;
-	int sampleIndex = 0;
-
-	private void Start()
+    virtual protected void Start()
 	{
 		// Disable the component if there are less than 4 points
 		if (points.Length < 4)
@@ -29,39 +30,35 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 		// n intervals = n + 1 points
 		samples = intervals + 1;
 		table = Interpolation.CreateLookupTable(points, samples);
-
-		DistanceUpdater = () => { return speed * Time.deltaTime; };
 	}
 
-	public delegate float DistanceFunction();
-	public DistanceFunction DistanceUpdater
+    virtual protected void Update()
 	{
-		set; private get;
-	}
+        Vector3 p0 = Interpolation.EvaluateCatmull(
+            Interpolation.DistanceSample(distance, table, interval, sample, samples),
+            interval, points);
 
-    private void Update()
-	{
-		// Make this a delegate?
-		// distance += rb.velocity (based on avoid or follow spline)
-		//distance += speed * Time.deltaTime;
-		distance += DistanceUpdater();
+		distance += speed * Time.deltaTime;
 
         // Increment indices until travelled distance matches desired distance
-        while (distance > table[intervalIndex][(sampleIndex + 1) % samples].accumulatedDistance)
+        while (distance > table[interval][(sample + 1) % samples].accumulatedDistance)
 		{
-            if (++sampleIndex >= samples)
+            if (++sample >= samples)
 			{
-				sampleIndex = 0;
+                sample = 0;
                 distance = 0.0f;
 
-				++intervalIndex;
-				intervalIndex %= points.Length;
+				++interval;
+                interval %= points.Length;
             }
         }
 
-        transform.position = Interpolation.EvaluateCatmull(
-            Interpolation.DistanceSample(distance, table, intervalIndex, sampleIndex, samples),
-			intervalIndex, points);
+        Vector3 p1 = Interpolation.EvaluateCatmull(
+            Interpolation.DistanceSample(distance, table, interval, sample, samples),
+            interval, points);
+
+		transform.rotation = Interpolation.FrenetFrame(p0, p1, Vector3.up).rotation;
+		transform.position = p1;
     }
 
     private void OnDrawGizmos()
