@@ -1,9 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static CatmullRomSpeedControlled;
 
 public class Interpolation
 {
+    public delegate void LineMethod(Vector3 a, Vector3 b);
+
+    [System.Serializable]
+    public class SamplePoint
+    {
+        public float t;
+        public float accumulatedDistance;
+
+        public SamplePoint(float t, float accumulatedDistance)
+        {
+            this.t = t;
+            this.accumulatedDistance = accumulatedDistance;
+        }
+    }
+
+    // Inverse linear interpolation -- returns t where n = current value between a and b
+    // ie if n = 5, a = 0 and b = 10 then t = 0.5.
     public static float SolveT(float n, float a, float b)
     {
         return (n - a) / (b - a);
@@ -49,7 +67,13 @@ public class Interpolation
         return p;
     }
 
-    public delegate void LineMethod(Vector3 a, Vector3 b);
+    // Higher order EvaluateCatmull function :)
+    public static Vector3 EvaluateCatmull(float t, int i, Transform[] points)
+    {
+        Vector3 c0, e0, e1, c1;
+        PointsFromIndex(i, points, out c0, out e0, out e1, out c1);
+        return EvaluateCatmull(c0, e0, e1, c1, t);
+    }
 
     public static void DrawBezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, LineMethod lm)
     {
@@ -81,24 +105,18 @@ public class Interpolation
         }
     }
 
-    public static void PointsFromIndex(int i, Transform[] points, out Vector3 p0, out Vector3 p1, out Vector3 p2, out Vector3 p3)
+    public static void DrawCatmullPoints(Transform[] points, int intervals, LineMethod lm)
     {
-        int n = points.Length;
-        p0 = points[(i - 1 + n) % n].position;
-        p1 = points[i % n].position;
-        p2 = points[(i + 1) % n].position;
-        p3 = points[(i + 2) % n].position;
+        for (int i = 0; i < points.Length; ++i)
+        {
+            for (float t = 0.0f; t < 1.0f; t += 1.0f / intervals)
+            {
+                DrawCatmullPoint(t, i, points);
+            }
+        }
     }
 
-    // Higher order EvaluateCatmull function :)
-    public static Vector3 EvaluateCatmull(float t, int i, Transform[] points)
-    {
-        Vector3 c0, e0, e1, c1;
-        PointsFromIndex(i, points, out c0, out e0, out e1, out c1);
-        return EvaluateCatmull(c0, e0, e1, c1, t);
-    }
-
-    public static void DrawCatmullPoint(float t, int i, Transform[] points)
+    private static void DrawCatmullPoint(float t, int i, Transform[] points)
     {
         Vector3 p0, p1, p2, p3;
         PointsFromIndex(i, points, out p0, out p1, out p2, out p3);
@@ -115,5 +133,58 @@ public class Interpolation
         rotation.SetColumn(1, above);
         rotation.SetColumn(2, forward);
         return rotation;
+    }
+
+    public static void PointsFromIndex(int i, Transform[] points, out Vector3 p0, out Vector3 p1, out Vector3 p2, out Vector3 p3)
+    {
+        int n = points.Length;
+        p0 = points[(i - 1 + n) % n].position;
+        p1 = points[i % n].position;
+        p2 = points[(i + 1) % n].position;
+        p3 = points[(i + 2) % n].position;
+    }
+
+    /*
+     * 
+     * SPEED CONTROL 
+     * 
+    */
+
+    public static List<List<SamplePoint>> CreateLookupTable(Transform[] points, int samples)
+    {
+        List<List<SamplePoint>> table = new List<List<SamplePoint>>();
+        for (int i = 0; i < points.Length; ++i)
+        {
+            Vector3 p0, p1, p2, p3;
+            PointsFromIndex(i, points, out p0, out p1, out p2, out p3);
+            List<SamplePoint> segment = new List<SamplePoint>();
+
+            float arcLength = 0.0f;
+            float step = 1.0f / (samples - 1);
+            segment.Add(new SamplePoint(0.0f, 0.0f));
+            for (float t = step; t <= 1.0f; t += step)
+            {
+                Vector3 a = EvaluateCatmull(t - step, i, points);
+                Vector3 b = EvaluateCatmull(t, i, points);
+                Vector3 line = b - a;
+                arcLength += line.magnitude;
+                segment.Add(new SamplePoint(t, arcLength));
+            }
+            table.Add(segment);
+        }
+        return table;
+    }
+
+    // Returns an interpolation parameter (t -- percentage) based on distance between points
+    public static float DistanceSample(float distance, List<List<SamplePoint>> table,
+        int interval, int sample, int sampleCount)
+    {
+        SamplePoint current = table[interval][sample];
+        SamplePoint next = table[interval][(sample + 1) % sampleCount];
+
+        return Mathf.Lerp(current.t, next.t,
+            (distance - current.accumulatedDistance) /
+            (next.accumulatedDistance - current.accumulatedDistance)
+        );
     }
 }

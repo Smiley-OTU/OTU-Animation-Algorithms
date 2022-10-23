@@ -34,7 +34,6 @@ public class Seeker : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        //rb.AddForce(transform.forward * linearSpeed);
     }
 
     void FixedUpdate()

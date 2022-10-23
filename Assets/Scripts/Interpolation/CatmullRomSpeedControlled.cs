@@ -11,21 +11,8 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 	public int intervals = 16;
 	private int samples;
 
-	[System.Serializable]
-	class SamplePoint
-	{
-		public float t;
-		public float accumulatedDistance;
-
-		public SamplePoint(float t, float accumulatedDistance)
-		{
-			this.t = t;
-			this.accumulatedDistance = accumulatedDistance;
-		}
-	}
-	
 	// Look-up table (LUT) that maps interpolation values to distances
-	List<List<SamplePoint>> table = new List<List<SamplePoint>>();
+	List<List<Interpolation.SamplePoint>> table = new List<List<Interpolation.SamplePoint>>();
 
 	float distance = 0.0f;
 	int intervalIndex = 0;
@@ -33,40 +20,31 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 
 	private void Start()
 	{
-        // Disable the component if there are less than 4 points
-        if (points.Length < 4)
+		// Disable the component if there are less than 4 points
+		if (points.Length < 4)
 		{
 			enabled = false;
 		}
 
 		// n intervals = n + 1 points
 		samples = intervals + 1;
+		table = Interpolation.CreateLookupTable(points, samples);
 
-		// Create the look-up table
-		for (int i = 0; i < points.Length; ++i)
-		{
-            Vector3 p0, p1, p2, p3;
-            Interpolation.PointsFromIndex(i, points, out p0, out p1, out p2, out p3);
-            List<SamplePoint> segment = new List<SamplePoint>();
+		DistanceUpdater = () => { return speed * Time.deltaTime; };
+	}
 
-			float arcLength = 0.0f;
-			float step = 1.0f / intervals;
-			segment.Add(new SamplePoint(0.0f, 0.0f));
-			for (float t = step; t <= 1.0f; t+=step)
-			{
-				Vector3 a = Interpolation.EvaluateCatmull(t - step, i, points);
-				Vector3 b = Interpolation.EvaluateCatmull(t, i, points);
-				Vector3 line = b - a;
-				arcLength += line.magnitude;
-				segment.Add(new SamplePoint(t, arcLength));
-            }
-			table.Add(segment);
-		}
-    }
-
-	private void Update()
+	public delegate float DistanceFunction();
+	public DistanceFunction DistanceUpdater
 	{
-		distance += speed * Time.deltaTime;
+		set; private get;
+	}
+
+    private void Update()
+	{
+		// Make this a delegate?
+		// distance += rb.velocity (based on avoid or follow spline)
+		//distance += speed * Time.deltaTime;
+		distance += DistanceUpdater();
 
         // Increment indices until travelled distance matches desired distance
         while (distance > table[intervalIndex][(sampleIndex + 1) % samples].accumulatedDistance)
@@ -81,29 +59,14 @@ public class CatmullRomSpeedControlled : MonoBehaviour
             }
         }
 
-        transform.position = Interpolation.EvaluateCatmull(GetAdjustedT(), intervalIndex, points);
+        transform.position = Interpolation.EvaluateCatmull(
+            Interpolation.DistanceSample(distance, table, intervalIndex, sampleIndex, samples),
+			intervalIndex, points);
     }
-
-	float GetAdjustedT()
-	{
-		SamplePoint current = table[intervalIndex][sampleIndex];
-		SamplePoint next = table[intervalIndex][(sampleIndex + 1) % samples];
-
-		return Mathf.Lerp(current.t, next.t,
-			(distance - current.accumulatedDistance) /
-			(next.accumulatedDistance - current.accumulatedDistance)
-		);
-	}
 
     private void OnDrawGizmos()
 	{
         Interpolation.DrawCatmull(points, Gizmos.DrawLine);
-        for (int i = 0; i < points.Length; ++i)
-		{
-            for (float t = 0.0f; t < 1.0f; t += 1.0f / intervals)
-            {
-                Interpolation.DrawCatmullPoint(t, i, points);
-            }
-        }
+        Interpolation.DrawCatmullPoints(points, intervals, Gizmos.DrawLine);
     }
 }
