@@ -8,7 +8,7 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 {
 	public Transform[] points;
 	public float speed = 10.0f;
-	private float distance = 0.0f;
+	protected float distance = 0.0f;
 
 	[Range(1, 32)]
 	public int intervals = 16;
