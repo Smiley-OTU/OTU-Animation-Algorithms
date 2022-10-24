@@ -1,54 +1,74 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 public class Racer : CatmullRomSpeedControlled
 {
+    public float proximity = 10.0f;
+
     private Rigidbody rb;
     private BoxCollider bc;
 
-    private bool avoid = false;
     private Vector3 avoidPosition = Vector3.zero;
+
+    private enum Follow
+    {
+        FOLLOW,
+        AVOID,
+        JOIN
+    }
+
+    private Follow state;
 
     protected override void Start()
     {
         base.Start();
         rb = GetComponent<Rigidbody>();
         bc = GetComponent<BoxCollider>();
+        //BoxCollider sensor = GetComponentInChildren<BoxCollider>();
+        //Debug.Log(sensor.size.z);
     }
 
     protected override void Update()
     {
         float dt = Time.deltaTime;
-        if (avoid)
+        if (state == Follow.AVOID)
         {
             Vector3 targetDirection = (avoidPosition - transform.position).normalized;
             Steering.Seek(rb, speed, targetDirection);
             Steering.RotateTowards(rb, 1.0f, targetDirection, dt);
             distance += rb.velocity.magnitude * dt;
         }
-        else
+        else if (state == Follow.JOIN)
         {
-            base.Update();
+            Vector3 targetPosition = points[interval + (1 % intervals)].position;
+            Vector3 toTarget = targetPosition - transform.position;
+            Vector3 targetDirection = toTarget.normalized;
+            float targetDistance = toTarget.magnitude;
+            Steering.Arrive(rb, speed, targetDirection, targetDistance, proximity);
+            if (targetDistance / proximity <= 1.0f)
+                state = Follow.FOLLOW;
         }
+        else if (state == Follow.FOLLOW)
+            base.Update();
+        Debug.Log(state);
     }
 
     public void OnObstacleDetected(Collider collider)
     {
-        avoid = true;
-        avoidPosition = collider.transform.position +
-            (collider.transform.forward * speed) +
-            (collider.transform.right * speed);
+        Vector3 avoidDirection =
+            Vector3.Angle(transform.forward, collider.transform.right) <
+            Vector3.Angle(transform.forward, -collider.transform.right) ?
+            collider.transform.right : -collider.transform.right;
 
-        // Positive if obstacle is ahead, negative if obstacle is behind
-        //Debug.Log(Vector3.Dot(transform.forward, collider.transform.forward));
+        avoidPosition = collider.transform.position + avoidDirection * 5.0f;//bc.size.z;
 
-        // Positive if obstacle is right, negative if obstacle is left
-        //Debug.Log(Vector3.Dot(transform.right, collider.transform.right));
+        state = Follow.AVOID;
     }
 
     public void OnObstacleAvoided(Collider collider)
     {
-        avoid = false;
+        state = Follow.JOIN;
     }
 }

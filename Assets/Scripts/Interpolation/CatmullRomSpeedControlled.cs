@@ -12,9 +12,9 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 
 	[Range(1, 32)]
 	public int intervals = 16;
-	private int samples;
-	private int interval = 0;
-	private int sample = 0;
+	protected int samples;
+	protected int interval = 0;
+	protected int sample = 0;
 
 	// Look-up table (LUT) that maps interpolation values to distances
 	private List<List<Interpolation.SamplePoint>> table = new List<List<Interpolation.SamplePoint>>();
