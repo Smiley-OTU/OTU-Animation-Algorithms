@@ -14,9 +14,4 @@ public class Sensor : MonoBehaviour
     {
         parent.OnObstacleDetected(collider);
     }
-
-    private void OnTriggerExit(Collider collider)
-    {
-        parent.OnObstacleAvoided(collider);
-    }
 }

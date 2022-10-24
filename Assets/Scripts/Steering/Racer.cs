@@ -8,7 +8,6 @@ public class Racer : CatmullRomSpeedControlled
     public float proximity = 10.0f;
 
     private Rigidbody rb;
-    private BoxCollider bc;
 
     private Vector3 avoidPosition = Vector3.zero;
 
@@ -25,50 +24,34 @@ public class Racer : CatmullRomSpeedControlled
     {
         base.Start();
         rb = GetComponent<Rigidbody>();
-        bc = GetComponent<BoxCollider>();
-        //BoxCollider sensor = GetComponentInChildren<BoxCollider>();
-        //Debug.Log(sensor.size.z);
     }
 
     protected override void Update()
     {
         float dt = Time.deltaTime;
-        if (state == Follow.AVOID)
+
+        if (state != Follow.FOLLOW)
         {
-            Vector3 targetDirection = (avoidPosition - transform.position).normalized;
-            Steering.Seek(rb, speed, targetDirection);
-            Steering.RotateTowards(rb, 1.0f, targetDirection, dt);
+            Vector3 target = state == Follow.AVOID ? avoidPosition : points[(interval + 1) % intervals].position;
+            Vector3 toTarget = target - transform.position;
+            Steering.Arrive(rb, speed, toTarget.normalized, toTarget.magnitude, proximity);
+            //Steering.RotateTowards(rb, 1.0f, toTarget.normalized, dt);
             distance += rb.velocity.magnitude * dt;
+            if (toTarget.magnitude / proximity <= 0.25f)
+                state = state == Follow.AVOID ? Follow.JOIN : Follow.FOLLOW;
         }
-        else if (state == Follow.JOIN)
-        {
-            Vector3 targetPosition = points[interval + (1 % intervals)].position;
-            Vector3 toTarget = targetPosition - transform.position;
-            Vector3 targetDirection = toTarget.normalized;
-            float targetDistance = toTarget.magnitude;
-            Steering.Arrive(rb, speed, targetDirection, targetDistance, proximity);
-            if (targetDistance / proximity <= 1.0f)
-                state = Follow.FOLLOW;
-        }
-        else if (state == Follow.FOLLOW)
+        else
             base.Update();
-        Debug.Log(state);
     }
 
     public void OnObstacleDetected(Collider collider)
     {
-        Vector3 avoidDirection =
-            Vector3.Angle(transform.forward, collider.transform.right) <
-            Vector3.Angle(transform.forward, -collider.transform.right) ?
-            collider.transform.right : -collider.transform.right;
+        float right = Vector3.Angle(transform.forward, collider.transform.right);
+        float left = Vector3.Angle(transform.forward, -collider.transform.right);
 
-        avoidPosition = collider.transform.position + avoidDirection * 5.0f;//bc.size.z;
+        Vector3 avoidDirection = right < left ? collider.transform.right : -collider.transform.right;
+        avoidPosition = collider.transform.position + avoidDirection * 5.0f;
 
         state = Follow.AVOID;
-    }
-
-    public void OnObstacleAvoided(Collider collider)
-    {
-        state = Follow.JOIN;
     }
 }
