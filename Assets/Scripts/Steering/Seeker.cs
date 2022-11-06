@@ -59,8 +59,10 @@ public class Seeker : MonoBehaviour
                 break;
 
             case SteeringBehaviour.ARRIVE:
-                rb.AddForce(Steering.Arrive(target.position, rb, speed, proximity));
-                //Steering.ApplyArrive(target.position, rb, speed, proximity);
+                float t = 1.0f - Steering.Attenuate(target.position, rb.position, proximity);
+                Vector3 a = Steering.Seek(target.position, rb, speed);
+                Vector3 b = Steering.Arrive(target.position, rb);
+                rb.AddForce(Vector3.Lerp(a, b, t));
                 break;
         }
     }

@@ -16,12 +16,10 @@ public class Steering
         return desiredVelocity - currentVelocity;
     }
 
-    public static Vector3 Arrive(Vector3 target, Rigidbody current, float speed, float proximity)
+    public static Vector3 Arrive(Vector3 target, Rigidbody current)
     {
         float distance = (target - current.position).magnitude;
-        return distance <= proximity ?
-            -current.velocity.normalized * ArcY.Deceleration(distance, current.velocity.magnitude) :
-            Seek(target, current, speed);
+        return -current.velocity.normalized * ArcY.Deceleration(distance, current.velocity.magnitude);
     }
 
     public static void ApplySeek(Vector3 target, Rigidbody current, float speed)
@@ -48,7 +46,7 @@ public class Steering
     }
 
     // Approaches 0 as current approaches target. Returns 1 if current is length or more units away from target. 
-    private static float Attenuate(Vector3 target, Vector3 current, float length)
+    public static float Attenuate(Vector3 target, Vector3 current, float length)
     {
         return Mathf.Clamp01((target - current).magnitude / length);
     }
@@ -62,3 +60,13 @@ public class Steering
         );
     }
 }
+
+/*
+public static Vector3 Arrive(Vector3 target, Rigidbody current, float speed, float proximity)
+{
+    float distance = (target - current.position).magnitude;
+    return distance <= proximity ?
+        -current.velocity.normalized * ArcY.Deceleration(distance, current.velocity.magnitude) :
+        Seek(target, current, speed);
+}
+*/
