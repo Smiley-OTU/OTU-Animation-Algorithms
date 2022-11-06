@@ -4,72 +4,53 @@ using UnityEngine;
 
 public class Steering
 {
-    /*public static void Line(Rigidbody seeker, Rigidbody target)
+    public static Vector3 Line(Vector3 target, Vector3 current, float speed)
     {
-
+        return (target - current).normalized * speed;
     }
 
-    public static void Seek(Rigidbody seeker, Rigidbody target)
+    public static Vector3 Seek(Vector3 target, Rigidbody current, float speed)
     {
-
+        Vector3 desiredVelocity = (target - current.position).normalized * speed;
+        Vector3 currentVelocity = current.velocity;
+        return desiredVelocity - currentVelocity;
     }
 
-    public static void Arrive(Rigidbody seeker, Rigidbody target)
+    public static void ApplySeek(Vector3 target, Rigidbody current, float speed)
     {
-
+        current.AddForce(Seek(target, current, speed));
     }
 
-    public static void ProximityFlee(Rigidbody seeker, Rigidbody target)
+    public static void ApplyArrive(Vector3 target, Rigidbody current, float speed, float proximity)
     {
-
-    }*/
-
-    public static void Line(Rigidbody rb, float speed, Vector3 targetDirection)
-    {
-        // Applies constant speed by subtracting direction vectors and multiplying the result by linear velocity.
-        Vector3 linearVelocityDirection = rb.velocity.normalized;
-        rb.AddForce((targetDirection - linearVelocityDirection) * speed);
-    }
-
-    public static void Seek(Rigidbody rb, float speed, Vector3 targetDirection)
-    {
-        // Seek with increasing/decreasing speed by subtracting the constant of target direction *
-        // linear velocity by the ever-changing rigid body velocity to create a feedback loop!
-        rb.AddForce(targetDirection * speed - rb.velocity);
-    }
-
-    public static void Arrive(Rigidbody rb, float speed, Vector3 targetDirection, float targetDistance, float slowRadius)
-    {
-        // Attenuate velocity based on proximity;
-        // (targetDistance / slowRadius) approaches zero as the object approaches the target.
-        if (targetDistance <= slowRadius)
-        {
-            rb.velocity = (targetDirection * speed - rb.velocity) * (targetDistance / slowRadius);
-        }
+        float attenuation = Attenuate(target, current.position, proximity);
+        if (attenuation < 1.0f)
+            current.velocity = Seek(target, current, speed) * attenuation;
         else
-        {
-            Seek(rb, speed, targetDirection);
-        }
+            current.AddForce(Seek(target, current, speed));
     }
 
-    public static void ProximityFlee(Rigidbody rb, float speed, Vector3 targetDirection, float targetDistance, float fleeRadius)
+    public static void ApplyFlee(Vector3 target, Rigidbody current, float speed, float proximity)
     {
-        // Similar to arrive but with a lazier attenuation method.
-        // (Must pass more information if we want to attenuate more gradually).
-        if (targetDistance <= fleeRadius)
-        {
-            Seek(rb, speed, - targetDirection);
-        }
+        float attenuation = Attenuate(target, current.position, proximity);
+        if (attenuation < 1.0f)
+            current.AddForce(-Seek(target, current, speed));
         else
-        {
-            rb.velocity *= 0.90f;
-        }
+            current.velocity *= 0.9f;
     }
 
-    public static void RotateTowards(Rigidbody rb, float speed, Vector3 targetDirection)
+    // Approaches 0 as current approaches target. Returns 1 if current is length or more units away from target. 
+    private static float Attenuate(Vector3 target, Vector3 current, float length)
     {
-        // Using AddTorque() to rotate towards a target is hard to control. This suffices.
-        Vector3 rotation = Vector3.RotateTowards(rb.transform.forward, targetDirection, Time.deltaTime * speed, 0.0f);
-        rb.transform.rotation = Quaternion.LookRotation(rotation);
+        return Mathf.Clamp01((target - current).magnitude / length);
+    }
+
+    // Can't call within Seek() because of calls to -Seek().
+    public static Quaternion RotateAt(Vector3 target, Rigidbody current, float maxAngle = Mathf.Deg2Rad)
+    {
+        return Quaternion.LookRotation(
+            Vector3.RotateTowards(current.transform.forward, (target - current.position).normalized,
+            maxAngle, 0.0f)
+        );
     }
 }

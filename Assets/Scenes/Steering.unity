@@ -1291,7 +1291,7 @@ MonoBehaviour:
   target: {fileID: 1945110077}
   speed: 50
   proximity: 10
-  state: 5
+  state: 0
 --- !u!54 &1962863276
 Rigidbody:
   m_ObjectHideFlags: 0

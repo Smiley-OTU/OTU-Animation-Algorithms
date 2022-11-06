@@ -123,3 +123,14 @@ public class ArcY
         return (-b + Mathf.Sqrt(b2 - fourAC)) / twoA;
     }
 }
+
+// Solves for deceleration needed to reach vf of 0 after traveling distance d given vi.
+/*
+public static float Deceleration(float d, float vi)
+{
+    // vf^2 = vi^2 + 2a * d
+    // 0 = vi^2 + 2a * d
+    // a = vi^2 / d * 2
+    return (vi * vi) / (d * 2.0f);
+}
+*/

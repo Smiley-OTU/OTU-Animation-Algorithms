@@ -29,15 +29,13 @@ public class Racer : CatmullRomSpeedControlled
     protected override void Update()
     {
         float dt = Time.deltaTime;
-
         if (state != Follow.FOLLOW)
         {
             Vector3 target = state == Follow.AVOID ? avoidPosition : points[(interval + 1) % intervals].position;
-            Vector3 toTarget = target - transform.position;
-            Steering.Arrive(rb, speed, toTarget.normalized, toTarget.magnitude, proximity);
-            //Steering.RotateTowards(rb, 1.0f, toTarget.normalized, dt);
+            Steering.ApplyArrive(target, rb, speed, proximity);
+            transform.rotation = Steering.RotateAt(target, rb, dt);
             distance += rb.velocity.magnitude * dt;
-            if (toTarget.magnitude / proximity <= 0.25f)
+            if ((target - transform.position).magnitude / proximity <= 0.25f)
                 state = state == Follow.AVOID ? Follow.JOIN : Follow.FOLLOW;
         }
         else
