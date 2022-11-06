@@ -57,7 +57,7 @@ public class ArcY
         // Motion equation 2
         // df = di + vi * t + 0.5a * t^2
         // t = (-vi + sqrt(vi^2 - 4a * df)) / 2a
-        return Utility.Quadratic(0.5f * Physics.gravity.y, vi, -height) * 2.0f;
+        return Quadratic(0.5f * Physics.gravity.y, vi, -height) * 2.0f;
     }
 
     // Launch velocity given max height
@@ -113,5 +113,13 @@ public class ArcY
         Debug.Log("vi " + LaunchVelocity);
         Debug.Log("d " + Apex);
         Debug.Log("t " + Duration);
+    }
+
+    public static float Quadratic(float a, float b, float c)
+    {
+        float twoA = (2.0f * a);
+        float b2 = (b * b);
+        float fourAC = (4.0f * a * c);
+        return (-b + Mathf.Sqrt(b2 - fourAC)) / twoA;
     }
 }

@@ -5,13 +5,10 @@ using UnityEngine;
 public class Seeker : MonoBehaviour
 {
     [SerializeField]
-    private Transform target;
+    private Rigidbody target;
 
     [SerializeField]
-    private float linearSpeed;
-
-    [SerializeField]
-    private float angularSpeed;
+    private float speed;
 
     [SerializeField]
     private float proximity;
@@ -26,7 +23,9 @@ public class Seeker : MonoBehaviour
         SEEK,
         FLEE,
         PROXIMITY_FLEE,
-        ARRIVE
+        ARRIVE,
+        PURSUE,
+        EVADE
     };
 
     private Rigidbody rb;
@@ -38,7 +37,6 @@ public class Seeker : MonoBehaviour
 
     void FixedUpdate()
     {
-        float dt = Time.fixedDeltaTime;
         Vector3 toTarget = target.position - transform.position;
         Vector3 targetDirection = toTarget.normalized;
         float targetDistance = toTarget.magnitude;
@@ -46,28 +44,38 @@ public class Seeker : MonoBehaviour
         switch (state)
         {
             case SteeringBehaviour.LINE:
-                Steering.Line(rb, linearSpeed, targetDirection);
+                Steering.Line(rb, speed, targetDirection);
                 break;
 
             case SteeringBehaviour.SEEK:
-                Steering.Seek(rb, linearSpeed, targetDirection);
+                Steering.Seek(rb, speed, targetDirection);
                 break;
 
             case SteeringBehaviour.FLEE:
-                Steering.Seek(rb, linearSpeed, -targetDirection);
+                Steering.Seek(rb, speed, -targetDirection);
                 break;
 
             case SteeringBehaviour.PROXIMITY_FLEE:
-                Steering.ProximityFlee(rb, linearSpeed, targetDirection, targetDistance, proximity);
+                Steering.ProximityFlee(rb, speed, targetDirection, targetDistance, proximity);
                 break;
 
             case SteeringBehaviour.ARRIVE:
-                Steering.Arrive(rb, linearSpeed, targetDirection, targetDistance, proximity);
+                Steering.Arrive(rb, speed, targetDirection, targetDistance, proximity);
+                break;
+
+            case SteeringBehaviour.PURSUE:
+                Steering.Seek(rb, speed,
+                    (target.position + target.velocity - transform.position).normalized);
+                break;
+
+            case SteeringBehaviour.EVADE:
+                Steering.ProximityFlee(rb, speed,
+                    (target.position + target.velocity - transform.position).normalized, targetDistance, proximity);
                 break;
         }
 
         if (state != SteeringBehaviour.NONE)
-            Steering.RotateTowards(rb, angularSpeed, targetDirection, dt);
+            Steering.RotateTowards(rb, 1.0f, targetDirection);
     }
 
     public void OnObstacleAhead(Collider collider)
