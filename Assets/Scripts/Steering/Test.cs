@@ -5,16 +5,17 @@ using UnityEngine;
 public class Test : MonoBehaviour
 {
     private Rigidbody rb;
-    float a;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.velocity = Vector3.right * 10.0f;
-        a = ArcY.Deceleration(10, rb.velocity.x);
     }
 
     void FixedUpdate()
     {
-        rb.AddForce(-Vector3.right * a);
+        float distance = (Vector3.zero - transform.position).magnitude;
+        Vector3 direction = (Vector3.zero - transform.position).normalized;
+        float acc = ArcY.Deceleration(distance, rb.velocity.magnitude);
+        rb.AddForce(-rb.velocity.normalized * acc);
     }
 }
