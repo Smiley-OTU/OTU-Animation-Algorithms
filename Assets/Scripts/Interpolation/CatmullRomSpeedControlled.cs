@@ -61,7 +61,7 @@ public class CatmullRomSpeedControlled : MonoBehaviour
 		transform.position = p1;
     }
 
-    private void OnDrawGizmos()
+    virtual protected void OnDrawGizmos()
 	{
         Interpolation.DrawCatmull(points, Gizmos.DrawLine);
         Interpolation.DrawCatmullPoints(points, intervals, Gizmos.DrawLine);

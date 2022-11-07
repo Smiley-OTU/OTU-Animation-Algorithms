@@ -14,7 +14,6 @@ public class Test : MonoBehaviour
     void FixedUpdate()
     {
         float distance = (Vector3.zero - transform.position).magnitude;
-        Vector3 direction = (Vector3.zero - transform.position).normalized;
         float acc = ArcY.Deceleration(distance, rb.velocity.magnitude);
         rb.AddForce(-rb.velocity.normalized * acc);
     }
