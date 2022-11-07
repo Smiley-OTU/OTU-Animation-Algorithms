@@ -17,17 +17,13 @@ public class Steering
         return -current.velocity.normalized * ArcY.Deceleration(distance, current.velocity.magnitude);
     }
 
-    public static Vector3 Multiply(Rigidbody current, float factor = 1.0f)
-    {
-        return current.velocity * factor;
-    }
-
     // Approaches 0 as current approaches target. Returns 1 if current is length or more units away from target. 
     public static float Attenuate(Vector3 target, Vector3 current, float length)
     {
         return Mathf.Clamp01((target - current).magnitude / length);
     }
     
+    // A poor man's AddTorque().
     public static Quaternion RotateAt(Vector3 target, Rigidbody current, float maxAngle = Mathf.Deg2Rad)
     {
         return Quaternion.LookRotation(

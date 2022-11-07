@@ -34,7 +34,7 @@ public class Seeker : MonoBehaviour
 
     void FixedUpdate()
     {
-        // t = behaviour a (0.0) when outside proximity, t = behaviour b when inside proximity.
+        // t = behaviour A (0.0) when outside proximity, t = behaviour B when inside proximity.
         float t = 1.0f - Steering.Attenuate(target.position, rb.position, proximity);
         Vector3 steeringForce = Vector3.zero;
         switch (state)
@@ -45,7 +45,7 @@ public class Seeker : MonoBehaviour
 
             case SteeringBehaviour.FLEE:
                 {
-                    Vector3 a = -Steering.Multiply(rb);
+                    Vector3 a = -rb.velocity;
                     Vector3 b = -Steering.Seek(target.position, rb, speed);
                     steeringForce = Vector3.Lerp(a, b, t);
                 }
@@ -57,7 +57,7 @@ public class Seeker : MonoBehaviour
             
             case SteeringBehaviour.EVADE:
                 {
-                    Vector3 a = -Steering.Multiply(rb);
+                    Vector3 a = -rb.velocity;
                     Vector3 b = -Steering.Seek(target.position + target.velocity, rb, speed);
                     steeringForce = Vector3.Lerp(a, b, t);
                 }
